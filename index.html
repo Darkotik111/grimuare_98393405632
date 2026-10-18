@@ -81,6 +81,7 @@
   .breadcrumbs a { color: var(--text-gold); text-decoration: none; cursor: pointer; transition: 0.2s; }
   .breadcrumbs a:hover { color: #fff; text-shadow: 0 0 8px #fff; }
 
+  /* ПОЛКА С КНИГАМИ (Палитры) */
   .grid-palettes { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; align-items: end; padding-bottom: 20px; border-bottom: 8px solid #110614; border-radius: 4px; box-shadow: 0 10px 20px -10px #000; }
   
   .book-spine { 
@@ -94,15 +95,30 @@
   .book-spine:nth-child(3n+3) { background: var(--book-grey); }
   
   .book-spine:hover { transform: translateY(-10px); box-shadow: 5px 10px 20px rgba(0,0,0,0.8); z-index: 2; }
-  .book-spine.special { background: #2a1233; border: 2px solid var(--text-gold); box-shadow: 0 0 15px rgba(184, 138, 68, 0.3); }
   
   .book-title { font-family: var(--font-title); font-weight: 700; font-size: 18px; color: var(--text-gold); line-height: 1.2; text-align: center; margin-bottom: 8px; text-shadow: 0 1px 2px #000; }
   .book-meta { font-family: var(--font-hand); font-size: 16px; color: rgba(255,255,255,0.7); text-align: center; margin-top: auto; }
-  
   .book-decor { height: 2px; background: var(--text-gold); width: 60%; margin: 10px auto; opacity: 0.5; border-radius: 2px; }
   .book-preview { display: flex; justify-content: center; gap: 2px; margin-top: 15px; }
   .book-preview div { width: 8px; height: 8px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.5); }
 
+  /* БЛОК СПРАВОЧНИКОВ (NCS / RAL) */
+  .directory-section { margin-top: 40px; }
+  .directory-title { font-family: var(--font-title); color: var(--text-gold); font-size: 22px; margin-bottom: 20px; border-bottom: 1px solid var(--border-gold); padding-bottom: 10px; text-shadow: 0 2px 4px #000;}
+  .directory-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  
+  .directory-card { 
+    background: linear-gradient(135deg, rgba(61,26,64,0.8) 0%, rgba(26,11,28,0.9) 100%);
+    border: 2px solid var(--border-gold); border-radius: 8px; padding: 20px; cursor: pointer;
+    transition: 0.3s; display: flex; align-items: center; gap: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+  }
+  .directory-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(230,185,92,0.2); border-color: #ffd700; }
+  .directory-icon { width: 48px; height: 48px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; border: 2px solid var(--text-gold); background: var(--bg-dark); }
+  .directory-info h3 { margin: 0 0 4px 0; font-family: var(--font-title); color: var(--text-gold); font-size: 20px; }
+  .directory-info p { margin: 0; font-family: var(--font-hand); color: var(--text-muted); font-size: 16px; }
+
+  /* СЕТКА ЦВЕТОВ */
   .grid-colors { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
 
   .color-card { 
@@ -111,14 +127,14 @@
     border: 1px solid #c4b5a0; border-radius: 4px; 
     padding: 20px; display: flex; flex-direction: column; gap: 16px; position: relative; 
     box-shadow: 0 4px 15px rgba(0,0,0,0.5); color: var(--text-ink);
-    content-visibility: auto; contain-intrinsic-size: 250px;
+    content-visibility: auto; contain-intrinsic-size: 150px;
   }
   .color-card::after { content: ''; position: absolute; inset: 4px; border: 1px solid rgba(139, 100, 50, 0.3); pointer-events: none; }
   
   .color-card.clickable { cursor: pointer; transition: 0.2s; }
   .color-card.clickable:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.7); }
   
-  .color-header { display: flex; gap: 16px; align-items: center; border-bottom: 1px solid rgba(139, 100, 50, 0.3); padding-bottom: 12px; }
+  .color-header { display: flex; gap: 16px; align-items: center; }
   .color-swatch { 
     width: 56px; height: 56px; border-radius: 50%; border: 3px solid #c4b5a0; 
     flex-shrink: 0; box-shadow: inset 0 2px 5px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2); position: relative;
@@ -129,6 +145,15 @@
   .color-name { font-family: var(--font-title); font-weight: 700; font-size: 18px; line-height: 1.2; color: #2b1a22; margin-bottom: 4px; }
   .color-code { font-family: var(--font-hand); font-size: 16px; color: #5a4a3a; }
 
+  /* ВНУТРЕННЯЯ КАРТОЧКА (в справочнике) */
+  .color-card.compact { padding: 12px; gap: 8px; }
+  .color-card.compact .color-swatch { width: 40px; height: 40px; border-width: 2px; }
+  .color-card.compact .color-name { font-size: 16px; }
+  .color-card.compact .color-code { font-size: 14px; }
+  .view-recipe-btn { width: 100%; margin-top: 4px; padding: 6px; background: rgba(139, 100, 50, 0.1); border: 1px solid rgba(139, 100, 50, 0.4); color: #6b4a2a; border-radius: 2px; cursor: pointer; font-family: var(--font-title); font-size: 11px; transition: 0.2s; }
+  .view-recipe-btn:hover { background: rgba(139, 100, 50, 0.2); color: #1a0b1c; }
+
+  /* ФОРМУЛЫ */
   .formula-block { background: rgba(220, 205, 180, 0.5); border: 1px solid rgba(139, 100, 50, 0.2); border-radius: 4px; padding: 12px; }
   .formula-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .formula-base { font-family: var(--font-title); font-size: 12px; font-weight: 700; color: #6b4a2a; }
@@ -203,6 +228,7 @@
     .book-title { font-size: 14px; }
     .modal-content { padding: 24px; }
     .calc-row { flex-direction: column; align-items: flex-start; }
+    .directory-cards { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -495,7 +521,6 @@ async function handleImport(e) {
 
   await clearCloudBase();
   
-  // Сохраняем пачкой для скорости
   const allToSave = [];
   if (virtualNCS.colors.length > 0) { virtualNCS.colors.sort((a,b) => (a.EXTERNAL_NAME||'').localeCompare(b.EXTERNAL_NAME||'')); allToSave.push(virtualNCS); }
   if (virtualRAL.colors.length > 0) { virtualRAL.colors.sort((a,b) => (a.EXTERNAL_NAME||'').localeCompare(b.EXTERNAL_NAME||'')); allToSave.push(virtualRAL); }
@@ -548,8 +573,6 @@ async function burnBase() {
   currentPaletteId = null;
   render();
   toast('База уничтожена. Выберите файлы для новой загрузки.');
-  
-  // Сразу открываем окно выбора файлов
   $('importFiles').click();
 }
 
@@ -619,25 +642,31 @@ function renderPalettes(){
   $('pageTitle').textContent = isArchiveView ? 'Забвение' : `Гримуар (${totalRecipes})`;
   $('crumbs').style.display='none';
   
-  const processedPalettes = allPalettes.map(p => {
+  // Отделяем виртуальные справочники от обычных палитр
+  const virtualPalettes = allPalettes.filter(p => p.isVirtual);
+  const realPalettes = allPalettes.filter(p => !p.isVirtual);
+
+  const processedPalettes = realPalettes.map(p => {
     const activeColors = p.colors.filter(c => !c.isArchived); const archivedColors = p.colors.filter(c => c.isArchived);
     return { ...p, activeCount: activeColors.length, archivedCount: archivedColors.length };
   });
   
   currentItems = filterAndSort(processedPalettes, q, p => p.name);
-  $('empty').style.display=currentItems.length?'none':'block';
+  $('empty').style.display=(currentItems.length || virtualPalettes.length)?'none':'block';
   
-  const list=$('list'); list.innerHTML='<div class="grid-palettes">';
-  const gridContainer = list.firstChild;
+  const list=$('list'); list.innerHTML='';
+  
+  // 1. Полка с книгами (палитры)
+  const bookShelf = document.createElement('div');
+  bookShelf.className = 'grid-palettes';
   const itemsToShow = currentItems.slice(0, visibleCount);
   
   for(const p of itemsToShow){
-    if (isArchiveView && p.isVirtual) continue;
-    const el=document.createElement('div'); el.className='book-spine' + (p.isVirtual ? ' special' : '');
+    const el=document.createElement('div'); el.className='book-spine';
     const count = isArchiveView ? p.archivedCount : p.activeCount; if (count === 0) el.style.opacity = '0.5';
     el.onclick=(e)=>{ if (e.target.tagName === 'BUTTON' || e.target.tagName === 'svg') return; currentPaletteId=p.id; $('search').value=''; visibleCount = PAGE_SIZE; render(); };
     
-    let renameBtn = ''; if (isEditMode && !p.isVirtual) renameBtn = `<button class="edit-btn" style="position:absolute; top:10px; right:10px; color:var(--text-gold);" onclick="renamePalette('${p.id}')" title="Переименовать"><svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>`;
+    let renameBtn = ''; if (isEditMode) renameBtn = `<button class="edit-btn" style="position:absolute; top:10px; right:10px; color:var(--text-gold);" onclick="renamePalette('${p.id}')" title="Переименовать"><svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>`;
     
     let previewHtml = '<div class="book-preview">';
     const previewColors = p.colors.slice(0, 5);
@@ -652,8 +681,42 @@ function renderPalettes(){
       <div class="book-meta">${count} ${isArchiveView ? 'в забвении' : 'рецептов'}</div>
       ${previewHtml}
     `;
-    gridContainer.appendChild(el);
+    bookShelf.appendChild(el);
   }
+  list.appendChild(bookShelf);
+  
+  // 2. Справочники соответствий (NCS / RAL)
+  if (virtualPalettes.length > 0 && !isArchiveView) {
+    const dirSection = document.createElement('div');
+    dirSection.className = 'directory-section';
+    dirSection.innerHTML = '<h2 class="directory-title">📖 Справочники соответствий</h2><div class="directory-cards" id="dirCards"></div>';
+    list.appendChild(dirSection);
+    
+    const dirContainer = dirSection.querySelector('#dirCards');
+    
+    virtualPalettes.forEach(vp => {
+      const activeColors = vp.colors.filter(c => !c.isArchived);
+      if (activeColors.length === 0) return;
+      
+      const card = document.createElement('div');
+      card.className = 'directory-card';
+      card.onclick = () => { currentPaletteId = vp.id; $('search').value=''; visibleCount = PAGE_SIZE; render(); };
+      
+      let icon = '📚';
+      if (vp.name.includes('NCS')) icon = '🎨';
+      if (vp.name.includes('RAL')) icon = '🏭';
+      
+      card.innerHTML = `
+        <div class="directory-icon">${icon}</div>
+        <div class="directory-info">
+          <h3>${escapeHtml(vp.name)}</h3>
+          <p>${activeColors.length} цветов для поиска соответствий</p>
+        </div>
+      `;
+      dirContainer.appendChild(card);
+    });
+  }
+  
   updateLoadMoreBtn(itemsToShow.length, currentItems.length);
 }
 
@@ -672,6 +735,10 @@ function renderColors(){
   const list=$('list'); list.innerHTML='<div class="grid-colors">';
   const gridContainer = list.firstChild;
   const itemsToShow = currentItems.slice(0, visibleCount);
+  
+  // Определяем, виртуальная ли это папка (справочник)
+  const isVirtualView = p.isVirtual;
+
   const allActiveColorsCache = allPalettes.flatMap(pal => pal.isVirtual ? [] : pal.colors.filter(c => !c.isArchived));
 
   function findSimilar(targetFormula, targetMaterialId) {
@@ -693,52 +760,57 @@ function renderColors(){
 
   for(const c of itemsToShow){
     const el=document.createElement('div'); el.className='color-card clickable';
+    if (isVirtualView) el.classList.add('compact'); // Компактный вид для справочников
+    
     el.onclick=(e) => { if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'svg') openColorModal(c.ID); };
     
     let formulasHtml = '';
     
-    c.formulas.forEach((f, fIndex) => {
-      const comps = f.components.map(x => `<b>${x.pigment}</b>: ${x.amount.toFixed(4)}`).join(' | ');
-      const oldTag = f.isOld ? `<span class="tag old">Старое</span>` : '';
-      const matTag = f.materialName ? `<span class="tag material">${escapeHtml(f.materialName)}</span>` : '';
-      
-      let editFormulaBtn = ''; if (isEditMode && !p.isVirtual) editFormulaBtn = `<button class="formula-edit-btn" onclick="event.stopPropagation(); editFormula('${c.ID}', ${fIndex})">Править</button>`;
-      const calcIdL = `vol_l_${c.ID}_${fIndex}`; const calcIdOz = `vol_oz_${c.ID}_${fIndex}`;
-      
-      formulasHtml += `
-        <div class="formula-block" style="${f.isOld ? 'opacity:0.7;' : ''}">
-          <div class="formula-header">
-            <span class="formula-base">База ${f.base || '?'} ${oldTag} ${matTag}</span>
-            ${editFormulaBtn}
-          </div>
-          <div class="formula-content" id="text_${c.ID}_${fIndex}">
-            ${comps} <span class="unit">мл</span>
-          </div>
-          
-          <div class="calc-row" onclick="event.stopPropagation()">
-            <span class="calc-label">Пересчет:</span>
-            <div class="calc-inputs">
-              <input type="number" class="calc-input" id="${calcIdL}" value="1" min="0.01" step="0.1" oninput="syncCalc('${c.ID}', ${fIndex}, this.value, 'L')">
-              <span style="font-family:var(--font-title); font-size:11px; color:#6b4a2a;">л</span>
-              <span style="color:#c4b5a0">/</span>
-              <input type="number" class="calc-input" id="${calcIdOz}" value="33.81" min="0.01" step="0.1" oninput="syncCalc('${c.ID}', ${fIndex}, this.value, 'OZ')">
-              <span style="font-family:var(--font-title); font-size:11px; color:#6b4a2a;">oz</span>
-            </div>
-          </div>
-        </div>`;
+    // В справочниках не показываем длинные формулы, только кнопку
+    if (!isVirtualView) {
+      c.formulas.forEach((f, fIndex) => {
+        const comps = f.components.map(x => `<b>${x.pigment}</b>: ${x.amount.toFixed(4)}`).join(' | ');
+        const oldTag = f.isOld ? `<span class="tag old">Старое</span>` : '';
+        const matTag = f.materialName ? `<span class="tag material">${escapeHtml(f.materialName)}</span>` : '';
         
-      if (!f.isOld && !p.isVirtual) {
-        const similar = findSimilar(f, f.materialId);
-        if (similar.length > 0) {
-          const simItems = similar.map(s => `
-            <div class="similar-item" onclick="event.stopPropagation(); openColorModal('${s.color.ID}')" style="border-bottom:1px dashed rgba(139,100,50,0.3); padding:6px 0; cursor:pointer; display:flex; justify-content:space-between; font-family:var(--font-hand); font-size:16px; color:#4a3a2a;">
-              <span>${escapeHtml(s.color.EXTERNAL_NAME)}</span>
-              <span style="color:#1d3d2e; font-weight:bold;">±${s.diff.toFixed(1)}</span>
-            </div>`).join('');
-          formulasHtml += `<div class="similar-box" style="background:rgba(29, 61, 46, 0.05); border:1px solid rgba(29,61,46,0.2); padding:10px; border-radius:4px; margin-top:8px;"><div class="similar-title" style="font-family:var(--font-title); font-size:12px; color:var(--book-emerald); font-weight:bold; margin-bottom:4px;">✨ Родственные чары</div>${simItems}</div>`;
+        let editFormulaBtn = ''; if (isEditMode && !p.isVirtual) editFormulaBtn = `<button class="formula-edit-btn" onclick="event.stopPropagation(); editFormula('${c.ID}', ${fIndex})">Править</button>`;
+        const calcIdL = `vol_l_${c.ID}_${fIndex}`; const calcIdOz = `vol_oz_${c.ID}_${fIndex}`;
+        
+        formulasHtml += `
+          <div class="formula-block" style="${f.isOld ? 'opacity:0.7;' : ''}">
+            <div class="formula-header">
+              <span class="formula-base">База ${f.base || '?'} ${oldTag} ${matTag}</span>
+              ${editFormulaBtn}
+            </div>
+            <div class="formula-content" id="text_${c.ID}_${fIndex}">
+              ${comps} <span class="unit">мл</span>
+            </div>
+            
+            <div class="calc-row" onclick="event.stopPropagation()">
+              <span class="calc-label">Пересчет:</span>
+              <div class="calc-inputs">
+                <input type="number" class="calc-input" id="${calcIdL}" value="1" min="0.01" step="0.1" oninput="syncCalc('${c.ID}', ${fIndex}, this.value, 'L')">
+                <span style="font-family:var(--font-title); font-size:11px; color:#6b4a2a;">л</span>
+                <span style="color:#c4b5a0">/</span>
+                <input type="number" class="calc-input" id="${calcIdOz}" value="33.81" min="0.01" step="0.1" oninput="syncCalc('${c.ID}', ${fIndex}, this.value, 'OZ')">
+                <span style="font-family:var(--font-title); font-size:11px; color:#6b4a2a;">oz</span>
+              </div>
+            </div>
+          </div>`;
+          
+        if (!f.isOld && !p.isVirtual) {
+          const similar = findSimilar(f, f.materialId);
+          if (similar.length > 0) {
+            const simItems = similar.map(s => `
+              <div class="similar-item" onclick="event.stopPropagation(); openColorModal('${s.color.ID}')" style="border-bottom:1px dashed rgba(139,100,50,0.3); padding:6px 0; cursor:pointer; display:flex; justify-content:space-between; font-family:var(--font-hand); font-size:16px; color:#4a3a2a;">
+                <span>${escapeHtml(s.color.EXTERNAL_NAME)}</span>
+                <span style="color:#1d3d2e; font-weight:bold;">±${s.diff.toFixed(1)}</span>
+              </div>`).join('');
+            formulasHtml += `<div class="similar-box" style="background:rgba(29, 61, 46, 0.05); border:1px solid rgba(29,61,46,0.2); padding:10px; border-radius:4px; margin-top:8px;"><div class="similar-title" style="font-family:var(--font-title); font-size:12px; color:var(--book-emerald); font-weight:bold; margin-bottom:4px;">✨ Родственные чары</div>${simItems}</div>`;
+          }
         }
-      }
-    });
+      });
+    }
 
     let ncsBadge = ''; const searchStr = ((c.EXTERNAL_NAME||'') + ' ' + (c.NAME||'')).toUpperCase(); if (searchStr.includes('NCS')) ncsBadge = `<span class="tag ncs">NCS</span>`;
     
@@ -748,7 +820,11 @@ function renderColors(){
     
     const nameData = parseColorName(c);
     let actionsHtml = '';
-    if (!p.isVirtual) {
+    
+    if (isVirtualView) {
+      // Для справочника — только кнопка "Смотреть рецепт"
+      actionsHtml = `<button class="view-recipe-btn" onclick="event.stopPropagation(); openColorModal('${c.ID}')">Посмотреть рецепт</button>`;
+    } else if (!p.isVirtual) {
       const archiveBtn = c.isArchived 
         ? `<button class="primary" onclick="event.stopPropagation(); toggleColorArchive('${c.ID}', false)"><svg class="icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Вернуть</button>` 
         : `<button class="warn" onclick="event.stopPropagation(); toggleColorArchive('${c.ID}', true)"><svg class="icon" viewBox="0 0 24 24"><path d="M20 6H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2zm0 12H4V8h16v10zM2 4h20v2H2z"/></svg> В архив</button>`;
