@@ -69,6 +69,18 @@
   .search-bar:focus { outline: none; border-color: var(--border-focus); }
   .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: var(--text-muted); }
 
+  /* НАСТРОЙКИ СООТВЕТСТВИЙ (видны только в режиме правки) */
+  .match-settings-panel { 
+    background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; 
+    padding: 16px; margin-bottom: 30px; display: none; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .match-settings-panel input { 
+    width: 80px; padding: 8px; background: var(--bg-main); border: 1px solid var(--border-color); 
+    color: var(--text-main); border-radius: 8px; text-align: center; font-family: var(--font-mono); font-size: 15px;
+  }
+  .match-settings-panel input:focus { outline: none; border-color: var(--color-lavender); }
+  .match-settings-panel label { font-size: 14px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
+
   .breadcrumbs { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
   .breadcrumbs a { color: var(--color-lavender); text-decoration: none; cursor: pointer; transition: 0.2s; font-weight: 500; }
   .breadcrumbs a:hover { text-decoration: underline; }
@@ -92,9 +104,6 @@
   /* СПРАВОЧНИК СООТВЕТСТВИЙ */
   .directory-section { margin-top: 40px; }
   .directory-title { font-size: 20px; font-weight: 600; color: var(--text-main); margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;}
-  
-  .match-controls { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); }
-  .match-controls input { width: 60px; padding: 6px; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px; text-align:center; }
   
   /* Строчный вид соответствий */
   .match-list { display: flex; flex-direction: column; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; }
@@ -243,10 +252,6 @@
         <svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/></svg>
         Загрузить
       </button>
-      <button onclick="autoMatchFormulas()" id="recalcBtn" class="primary" style="display:none; background: #816C61; border-color: #816C61; color: #fff;">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-        Рассчитать формулы
-      </button>
       <button onclick="toggleEditMode()" id="editModeBtn">
         <svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
         Правка
@@ -266,6 +271,21 @@
     </div>
   </header>
   <input type="file" id="importFiles" multiple accept=".csv" style="display:none" onchange="handleImport(event)">
+
+  <!-- ПАНЕЛЬ НАСТРОЕК (видна только в режиме правки) -->
+  <div class="match-settings-panel" id="settingsPanel">
+    <label>
+      Порог похожести формул (мл): 
+      <input type="number" id="thresholdInput" value="1.0" step="0.1" min="0.1" max="100">
+    </label>
+    <button onclick="autoMatchFormulas()" class="primary">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+      Рассчитать соответствия
+    </button>
+    <button onclick="promptNewMatchCode()" style="background:transparent; border:1px dashed var(--color-taupe); color:var(--text-muted);">
+      + Добавить код вручную
+    </button>
+  </div>
 
   <div class="breadcrumbs" id="crumbs" style="display:none"></div>
   
@@ -509,8 +529,10 @@ async function handleImport(e) {
 
 // ============ АВТОМАТИЧЕСКИЙ ПОИСК СООТВЕТСТВИЙ ============
 function autoMatchFormulas() {
-  const threshold = parseFloat($('thresholdInput')?.value) || 1.0;
-  $('recalcBtn').textContent = 'Считаем...';
+  const thresholdInput = $('thresholdInput');
+  const threshold = thresholdInput ? (parseFloat(thresholdInput.value) || 1.0) : 1.0;
+  
+  toast('Идет расчет...', false);
   
   setTimeout(() => {
     // Собираем все цвета
@@ -521,11 +543,11 @@ function autoMatchFormulas() {
       });
     });
 
-    // Очищаем старые авто-соответствия (чтобы не дублировать)
+    // Очищаем старые авто-соответствия
     allPalettes.forEach(p => {
       p.colors.forEach(c => {
         if (c.customMatches) {
-          c.customMatches = c.customMatches.filter(m => m.type !== 'auto_formula' && m.type !== 'auto_name');
+          c.customMatches = c.customMatches.filter(m => m.type !== 'auto_formula');
         }
       });
     });
@@ -534,17 +556,13 @@ function autoMatchFormulas() {
     allColors.forEach(c => {
       if (!c.customMatches) c.customMatches = [];
       
-      const cNameStr = (c.EXTERNAL_NAME || '') + ' ' + (c.NAME || '') + ' ' + (c.NAME_RUS || '');
-      
       // 1. Ищем в названии код NCS
+      const cNameStr = (c.EXTERNAL_NAME || '') + ' ' + (c.NAME || '') + ' ' + (c.NAME_RUS || '');
       const ncsMatch = cNameStr.match(/NCS\s+([A-Z0-9\s\-]+)/i);
       if (ncsMatch) {
         const code = ncsMatch[0].trim().toUpperCase();
-        // Не добавляем, если этот код УЖЕ есть в названии этого же цвета, чтобы не было "NCS 0500 = NCS 0500"
-        if (!cNameStr.toUpperCase().includes(code) || code.length > 10) {
-           if (!c.customMatches.some(m => m.code === code)) {
-             c.customMatches.push({ code: code, type: 'auto_name' });
-           }
+        if (!c.customMatches.some(m => m.code === code && m.type === 'auto_name')) {
+           c.customMatches.push({ code: code, type: 'auto_name' });
         }
       }
 
@@ -553,18 +571,14 @@ function autoMatchFormulas() {
       if (!mainFormula) return;
 
       allColors.forEach(other => {
-        // НЕ СРАВНИВАЕМ САМ С СОБОЙ
         if (c.ID === other.ID) return; 
         
         const otherFormula = other.formulas.find(f => !f.isOld);
         if (!otherFormula) return;
         
-        // Пропускаем, если названия полностью совпадают
-        if (c.EXTERNAL_NAME === other.EXTERNAL_NAME) return;
-
-        // Сравниваем только если совпадает материал и база
-        if (mainFormula.materialId !== otherFormula.materialId) return;
-        if (mainFormula.base !== otherFormula.base) return;
+        if (c.EXTERNAL_NAME === other.EXTERNAL_NAME) return; // Пропускаем одинаковые названия
+        if (mainFormula.materialId !== otherFormula.materialId) return; // Только тот же материал
+        if (mainFormula.base !== otherFormula.base) return; // Только та же база
 
         // Считаем разницу
         let diff = 0;
@@ -584,7 +598,7 @@ function autoMatchFormulas() {
         // Если разница меньше порога, добавляем
         if (diff <= threshold) {
           const otherName = other.EXTERNAL_NAME || other.NAME || 'Цвет';
-          if (!c.customMatches.some(m => m.code === otherName)) {
+          if (!c.customMatches.some(m => m.code === otherName && m.type === 'auto_formula')) {
             c.customMatches.push({ code: otherName, type: 'auto_formula', diff: diff });
           }
         }
@@ -594,9 +608,8 @@ function autoMatchFormulas() {
     // Сохраняем обновления в облако (в фоне)
     allPalettes.forEach(p => { savePaletteToCloud(p); });
     
-    $('recalcBtn').innerHTML = `<svg class="icon" viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg> Рассчитать формулы`;
     render();
-    toast(`Соответствия обновлены (порог: ${threshold} мл)`);
+    toast(`Расчет завершен (порог: ${threshold} мл)`);
   }, 100);
 }
 
@@ -611,7 +624,7 @@ function toggleEditMode() {
     isEditMode = false; 
     $('editModeBtn').classList.remove('primary'); 
     $('burnBtn').style.display = 'none'; 
-    $('recalcBtn').style.display = 'none';
+    $('settingsPanel').style.display = 'none';
     toast('Режим чтения'); 
     render(); 
     return; 
@@ -621,7 +634,7 @@ function toggleEditMode() {
     isEditMode = true; 
     $('editModeBtn').classList.add('primary'); 
     $('burnBtn').style.display = 'inline-flex'; 
-    $('recalcBtn').style.display = 'inline-flex';
+    $('settingsPanel').style.display = 'flex'; // Показываем панель
     toast('Режим правки'); 
     render(); 
   }
@@ -767,13 +780,7 @@ function renderPalettes(){
   if (matchCodes.length > 0 && !isArchiveView) {
     const dirSection = document.createElement('div');
     dirSection.className = 'directory-section';
-    dirSection.innerHTML = `
-      <div class="directory-title">
-        Справочники соответствий
-        ${isEditMode ? `<div class="match-controls">Порог похожести (мл): <input type="number" id="thresholdInput" value="1.0" step="0.1" min="0.1" max="10" title="Максимальная разница в мл, при которой формулы считаются похожими"> <button class="btn-add-manual" onclick="promptNewMatchCode()">+ Добавить код</button></div>` : ''}
-      </div>
-      <div class="match-list" id="matchList"></div>
-    `;
+    dirSection.innerHTML = `<div class="directory-title">Справочники соответствий</div><div class="match-list" id="matchList"></div>`;
     list.appendChild(dirSection);
     
     const matchListContainer = dirSection.querySelector('#matchList');
@@ -793,14 +800,10 @@ function renderPalettes(){
       // Правая колонка со списком цветов
       let colorsCol = `<div class="match-colors-col">`;
       
-      // Убираем дубликаты цветов в одной строке
       const uniqueColors = [];
       const seenIds = new Set();
       colors.forEach(c => {
-        if (!seenIds.has(c.ID)) {
-          seenIds.add(c.ID);
-          uniqueColors.push(c);
-        }
+        if (!seenIds.has(c.ID)) { seenIds.add(c.ID); uniqueColors.push(c); }
       });
 
       uniqueColors.forEach(c => {
