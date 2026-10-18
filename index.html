@@ -44,7 +44,7 @@
 
   header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 30px; flex-wrap: wrap; }
   h1 { font-size: 24px; margin: 0; font-weight: 600; color: var(--color-lavender); }
-  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; }
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
   
   button { 
     background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); 
@@ -91,7 +91,10 @@
 
   /* СПРАВОЧНИК СООТВЕТСТВИЙ */
   .directory-section { margin-top: 40px; }
-  .directory-title { font-size: 20px; font-weight: 600; color: var(--text-main); margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center;}
+  .directory-title { font-size: 20px; font-weight: 600; color: var(--text-main); margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;}
+  
+  .match-controls { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); }
+  .match-controls input { width: 60px; padding: 6px; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px; text-align:center; }
   
   /* Строчный вид соответствий */
   .match-list { display: flex; flex-direction: column; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; }
@@ -99,16 +102,17 @@
   .match-row:last-child { border-bottom: none; }
   .match-row:hover { background: #4a382e; }
   
-  .match-code-col { width: 200px; padding: 16px; border-right: 1px solid var(--border-color); font-weight: 600; color: var(--color-lavender); display: flex; align-items: center; justify-content: space-between; }
+  .match-code-col { width: 200px; padding: 16px; border-right: 1px solid var(--border-color); font-weight: 600; color: var(--color-lavender); display: flex; align-items: center; justify-content: space-between; word-break: break-all; }
   .match-colors-col { flex: 1; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
   
   .match-color-chip { 
     background: var(--bg-main); border: 1px solid var(--border-color); padding: 6px 12px; 
     border-radius: 20px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px;
-    transition: 0.2s;
+    transition: 0.2s; max-width: 250px;
   }
   .match-color-chip:hover { border-color: var(--color-lavender); color: var(--color-lavender); }
-  .match-color-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--border-color); }
+  .match-color-chip span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .match-color-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--border-color); flex-shrink:0; }
   
   .btn-add-manual { background: transparent; border: 1px dashed var(--color-taupe); color: var(--text-muted); padding: 4px 8px; border-radius: 6px; font-size: 12px; cursor: pointer; margin-left: auto; transition: 0.2s; }
   .btn-add-manual:hover { border-color: var(--color-lavender); color: var(--color-lavender); }
@@ -162,7 +166,7 @@
   .custom-matches-title { font-size: 12px; color: var(--color-lavender); font-weight: 600; margin-bottom: 8px; }
   .match-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 6px 0; border-bottom: 1px solid var(--border-color); }
   .match-item:last-child { border-bottom: none; }
-  .match-item span { font-weight: 600; color: var(--text-main); }
+  .match-item span { font-weight: 600; color: var(--text-main); word-break: break-all;}
   .add-match-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); font-size: 12px; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; margin-top: 8px; }
   .add-match-btn:hover { border-color: var(--color-lavender); color: var(--color-lavender); }
 
@@ -505,6 +509,7 @@ async function handleImport(e) {
 
 // ============ АВТОМАТИЧЕСКИЙ ПОИСК СООТВЕТСТВИЙ ============
 function autoMatchFormulas() {
+  const threshold = parseFloat($('thresholdInput')?.value) || 1.0;
   $('recalcBtn').textContent = 'Считаем...';
   
   setTimeout(() => {
@@ -516,7 +521,7 @@ function autoMatchFormulas() {
       });
     });
 
-    // Очищаем старые авто-соответствия
+    // Очищаем старые авто-соответствия (чтобы не дублировать)
     allPalettes.forEach(p => {
       p.colors.forEach(c => {
         if (c.customMatches) {
@@ -535,8 +540,11 @@ function autoMatchFormulas() {
       const ncsMatch = cNameStr.match(/NCS\s+([A-Z0-9\s\-]+)/i);
       if (ncsMatch) {
         const code = ncsMatch[0].trim().toUpperCase();
-        if (!c.customMatches.some(m => m.code === code)) {
-          c.customMatches.push({ code: code, type: 'auto_name' });
+        // Не добавляем, если этот код УЖЕ есть в названии этого же цвета, чтобы не было "NCS 0500 = NCS 0500"
+        if (!cNameStr.toUpperCase().includes(code) || code.length > 10) {
+           if (!c.customMatches.some(m => m.code === code)) {
+             c.customMatches.push({ code: code, type: 'auto_name' });
+           }
         }
       }
 
@@ -551,7 +559,7 @@ function autoMatchFormulas() {
         const otherFormula = other.formulas.find(f => !f.isOld);
         if (!otherFormula) return;
         
-        // Пропускаем, если названия полностью совпадают (чтобы не дублировать)
+        // Пропускаем, если названия полностью совпадают
         if (c.EXTERNAL_NAME === other.EXTERNAL_NAME) return;
 
         // Сравниваем только если совпадает материал и база
@@ -573,8 +581,8 @@ function autoMatchFormulas() {
         });
         Object.values(compMap).forEach(amt => diff += amt);
 
-        // Если разница меньше 1.0, добавляем
-        if (diff < 1.0) {
+        // Если разница меньше порога, добавляем
+        if (diff <= threshold) {
           const otherName = other.EXTERNAL_NAME || other.NAME || 'Цвет';
           if (!c.customMatches.some(m => m.code === otherName)) {
             c.customMatches.push({ code: otherName, type: 'auto_formula', diff: diff });
@@ -588,7 +596,7 @@ function autoMatchFormulas() {
     
     $('recalcBtn').innerHTML = `<svg class="icon" viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg> Рассчитать формулы`;
     render();
-    toast('Соответствия обновлены');
+    toast(`Соответствия обновлены (порог: ${threshold} мл)`);
   }, 100);
 }
 
@@ -762,7 +770,7 @@ function renderPalettes(){
     dirSection.innerHTML = `
       <div class="directory-title">
         Справочники соответствий
-        ${isEditMode ? `<button class="btn-add-manual" onclick="promptNewMatchCode()">+ Добавить код</button>` : ''}
+        ${isEditMode ? `<div class="match-controls">Порог похожести (мл): <input type="number" id="thresholdInput" value="1.0" step="0.1" min="0.1" max="10" title="Максимальная разница в мл, при которой формулы считаются похожими"> <button class="btn-add-manual" onclick="promptNewMatchCode()">+ Добавить код</button></div>` : ''}
       </div>
       <div class="match-list" id="matchList"></div>
     `;
@@ -817,7 +825,6 @@ function renderPalettes(){
 function promptNewMatchCode() {
   const code = prompt('Введите новый код соответствия (например, NCS 1500N):');
   if (!code || !code.trim()) return;
-  const cleanCode = code.trim().toUpperCase();
   alert('Код создан! Теперь зайдите в любой цвет, выберите "Правка" и добавьте в него этот код.');
 }
 
