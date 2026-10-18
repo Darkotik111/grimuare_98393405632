@@ -573,7 +573,7 @@ function renderGlobalSearch() {
     let formulasHtml = '';
     const mainFormula = c.formulas.find(f => !f.isOld) || c.formulas[0];
     if (mainFormula) {
-      const comps = mainFormula.components.map(x => `${x.pigment}: ${x.amount.toFixed(1)}`).join(' | ');
+      const comps = mainFormula.components.map(x => `${x.pigment}: ${x.amount.toFixed(4)}`).join(' | ');
       const matTag = mainFormula.materialName ? `<span class="tag material">${escapeHtml(mainFormula.materialName)}</span>` : '';
       formulasHtml = `<div class="formula-block"><div class="formula-header"><span class="formula-base">База ${mainFormula.base || '?'}</span>${matTag}</div><div class="formula-content">${comps} <span class="unit">мл</span></div></div>`;
     }
@@ -622,7 +622,6 @@ function renderPalettes(){
     
     let renameBtn = ''; if (isEditMode && !p.isVirtual) renameBtn = `<button class="edit-btn" style="position:absolute; top:10px; right:10px; color:var(--text-gold);" onclick="renamePalette('${p.id}')" title="Переименовать"><svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>`;
     
-    // Генерируем цветную полоску-превью (как закладки)
     let previewHtml = '<div class="book-preview">';
     const previewColors = p.colors.slice(0, 5);
     if (previewColors.length === 0) previewHtml += '<div style="background:rgba(255,255,255,0.1)"></div>';
@@ -682,7 +681,7 @@ function renderColors(){
     let formulasHtml = '';
     
     c.formulas.forEach((f, fIndex) => {
-      const comps = f.components.map(x => `<b>${x.pigment}</b>: ${x.amount.toFixed(1)}`).join(' | ');
+      const comps = f.components.map(x => `<b>${x.pigment}</b>: ${x.amount.toFixed(4)}`).join(' | ');
       const oldTag = f.isOld ? `<span class="tag old">Старое</span>` : '';
       const matTag = f.materialName ? `<span class="tag material">${escapeHtml(f.materialName)}</span>` : '';
       
@@ -775,7 +774,7 @@ function syncCalc(colorId, fIndex, value, sourceUnit) {
     const newComps = f.components.map(x => {
       const totalMl = x.amount * liters;
       const totalOz = totalMl / 29.5735;
-      return `<b>${x.pigment}</b>: ${totalMl.toFixed(1)} <span class="unit">мл</span> <span style="color:#7a6a5a;font-size:11px;">(${totalOz.toFixed(2)} oz)</span>`;
+      return `<b>${x.pigment}</b>: ${totalMl.toFixed(4)} <span class="unit">мл</span> <span style="color:#7a6a5a;font-size:11px;">(${totalOz.toFixed(4)} oz)</span>`;
     }).join(' | ');
     textEl.innerHTML = newComps;
   }
@@ -791,7 +790,7 @@ function openColorModal(colorId) {
   
   let formulasHtml = '';
   color.formulas.forEach(f => {
-    const comps = f.components.map(x => `<b>${x.pigment}</b>: ${x.amount.toFixed(1)}`).join(' | ');
+    const comps = f.components.map(x => `<b>${x.pigment}</b>: ${x.amount.toFixed(4)}`).join(' | ');
     const oldTag = f.isOld ? `<span class="tag old">Старое</span>` : '';
     const matTag = f.materialName ? `<span class="tag material">${escapeHtml(f.materialName)}</span>` : '';
     formulasHtml += `
