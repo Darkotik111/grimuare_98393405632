@@ -196,7 +196,7 @@ async function register() {
     $('authError').textContent = 'Ошибка: ' + error.message;
     $('authError').style.display = 'block';
   } else {
-    alert('Регистрация успешна! Теперь вы можете войти (или проверьте почту, если включено подтверждение).');
+    alert('Регистрация успешна! Теперь вы можете войти.');
   }
 }
 
@@ -324,7 +324,12 @@ async function handleImport(e) {
   $('pageTitle').textContent = '⏳ Переписываем свитки...';
 
   const palettesObj = {};
-  dataPalette.forEach(p => { palettesObj[p.ID] = { id: Number(p.ID), name: p.NAME_PALETTE || p.NAME || 'Без названия', colors: [] }; });
+  dataPalette.forEach(p => { 
+    // Ищем ID палитры в разных возможных колонках
+    const pId = p.ID_PALETTE || p.ID || p.id_palette || p.id;
+    palettesObj[pId] = { id: Number(pId), name: p.NAME_PALETTE || p.NAME || p.name_palette || p.name || 'Без названия', colors: [] }; 
+  });
+  
   const pigmentsMap = {}; dataPigment.forEach(p => pigmentsMap[p.ID] = p.CODE);
   const materialsMap = {}; dataMaterial.forEach(m => materialsMap[m.ID] = m.SHORT_NAME || m.NAME);
   const colorsMap = {}; dataColor.forEach(c => colorsMap[c.ID] = { ...c, formulas: [] });
@@ -358,25 +363,46 @@ async function handleImport(e) {
 
   Object.values(colorsMap).forEach(c => {
     if (c.formulas.length === 0) return;
-    const pId = c.PALETTE_ID;
-    if (!palettesObj[pId]) palettesObj[pId] = { id: Number(pId), name: 'Неизвестный раздел ' + pId, colors: [] };
+    
+    // Ищем ID палитры цвета
+    const pId = c.PALETTE_ID || c.palette_id || c.ID_PALETTE;
+    
+    if (!palettesObj[pId]) {
+      palettesObj[pId] = { id: Number(pId), name: 'Раздел ' + pId, colors: [] };
+    }
+    
     let hex = '#000000';
     if (c.RGB && c.RGB !== 'NULL' && c.RGB !== '0') { const rgbInt = parseInt(c.RGB); if (!isNaN(rgbInt)) hex = '#' + (rgbInt & 0xFFFFFF).toString(16).padStart(6, '0'); }
     c.formulas.sort((a, b) => a.isOld - b.isOld);
     c.isArchived = false;
     const colorData = { ...c, hex };
+    
     palettesObj[pId].colors.push(colorData);
-    const searchString = (c.EXTERNAL_NAME + ' ' + c.NAME + ' ' + c.NAME_RUS).toUpperCase();
+    
+    // УМНЫЙ ПОИСК NCS (ищем NCS в любом из трех названий)
+    const searchString = ((c.EXTERNAL_NAME||'') + ' ' + (c.NAME||'') + ' ' + (c.NAME_RUS||'')).toUpperCase();
     if (searchString.includes('NCS')) virtualNCS.colors.push({ ...colorData, isVirtualCopy: true });
     if (searchString.includes('RAL')) virtualRAL.colors.push({ ...colorData, isVirtualCopy: true });
   });
 
   await clearCloudBase();
-  if (virtualNCS.colors.length > 0) { virtualNCS.colors.sort((a,b) => a.EXTERNAL_NAME.localeCompare(b.EXTERNAL_NAME)); await savePaletteToCloud(virtualNCS); }
-  if (virtualRAL.colors.length > 0) { virtualRAL.colors.sort((a,b) => a.EXTERNAL_NAME.localeCompare(b.EXTERNAL_NAME)); await savePaletteToCloud(virtualRAL); }
+  
+  // Сохраняем виртуальные папки первыми, чтобы они были в начале списка
+  if (virtualNCS.colors.length > 0) { 
+    virtualNCS.colors.sort((a,b) => (a.EXTERNAL_NAME||'').localeCompare(b.EXTERNAL_NAME||'')); 
+    await savePaletteToCloud(virtualNCS); 
+  }
+  if (virtualRAL.colors.length > 0) { 
+    virtualRAL.colors.sort((a,b) => (a.EXTERNAL_NAME||'').localeCompare(b.EXTERNAL_NAME||'')); 
+    await savePaletteToCloud(virtualRAL); 
+  }
+  
   for (let key in palettesObj) {
     const p = palettesObj[key];
-    if (p.colors.length > 0) { p.colors.sort((a,b) => a.EXTERNAL_NAME.localeCompare(b.EXTERNAL_NAME)); await savePaletteToCloud(p); }
+    if (p.colors.length > 0) { 
+      p.colors.sort((a,b) => (a.EXTERNAL_NAME||'').localeCompare(b.EXTERNAL_NAME||'')); 
+      await savePaletteToCloud(p); 
+    }
   }
 
   toast(`Успех! Данные загружены в облако.`);
@@ -432,7 +458,7 @@ function renderGlobalSearch() {
       const matTag = mainFormula.materialName ? `<span class="tag material">${escapeHtml(mainFormula.materialName)}</span>` : '';
       formulasHtml = `<div class="formula-box"><div class="formula-title">База ${mainFormula.base || '?'} ${matTag}</div><div>${comps} <span style="font-size:11px;color:var(--muted)">oz</span></div></div>`;
     }
-    let ncsBadge = ''; const searchStr = (c.EXTERNAL_NAME + ' ' + c.NAME).toUpperCase(); if (searchStr.includes('NCS')) ncsBadge = `<span class="tag ncs">NCS</span>`;
+    let ncsBadge = ''; const searchStr = ((c.EXTERNAL_NAME||'') + ' ' + (c.NAME||'')).toUpperCase(); if (searchStr.includes('NCS')) ncsBadge = `<span class="tag ncs">NCS</span>`;
     const nameData = parseColorName(c);
     el.innerHTML=`
       <div class="card-head"><div class="swatch" style="background:${c.hex}"></div>
@@ -532,7 +558,7 @@ function renderColors(){
         }
       }
     });
-    let ncsBadge = ''; const searchStr = (c.EXTERNAL_NAME + ' ' + c.NAME).toUpperCase(); if (searchStr.includes('NCS')) ncsBadge = `<span class="tag ncs">NCS</span>`;
+    let ncsBadge = ''; const searchStr = ((c.EXTERNAL_NAME||'') + ' ' + (c.NAME||'')).toUpperCase(); if (searchStr.includes('NCS')) ncsBadge = `<span class="tag ncs">NCS</span>`;
     let renameColorBtn = ''; if (isEditMode && !p.isVirtual) renameColorBtn = `<button class="edit-btn" onclick="event.stopPropagation(); renameColor('${c.ID}')">✏️</button>`;
     const nameData = parseColorName(c);
     let actionsHtml = '';
@@ -572,7 +598,7 @@ function openColorModal(colorId) {
   for (const p of allPalettes) { const found = p.colors.find(c => String(c.ID) === String(colorId)); if (found) { color = found; sourcePalette = p; break; } }
   if (!color) return;
   const nameData = parseColorName(color);
-  let ncsBadge = ''; const searchStr = (color.EXTERNAL_NAME + ' ' + color.NAME).toUpperCase(); if (searchStr.includes('NCS')) ncsBadge = `<span class="tag ncs">NCS</span>`;
+  let ncsBadge = ''; const searchStr = ((color.EXTERNAL_NAME||'') + ' ' + (color.NAME||'')).toUpperCase(); if (searchStr.includes('NCS')) ncsBadge = `<span class="tag ncs">NCS</span>`;
   let formulasHtml = '';
   color.formulas.forEach(f => {
     const comps = f.components.map(x => `<b>${x.pigment}</b>:${x.amount.toFixed(2)}`).join(' ');
