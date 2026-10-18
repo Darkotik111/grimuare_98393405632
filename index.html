@@ -6,11 +6,9 @@
 <title>Гримуар повелительниц подземелья</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  /* ПОДКЛЮЧАЕМ ГОТИЧЕСКИЕ И РУКОПИСНЫЕ ШРИФТЫ */
   @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Cinzel:wght@600;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
 
   :root {
-    /* Палитра с картинки: глубокий фиолетовый, малиновый, изумрудный, серый */
     --bg-dark: #1a0b1c;
     --bg-wall: #2a1233;
     --book-purple: #3d1a40;
@@ -40,7 +38,6 @@
     background-attachment: fixed; font-size: 16px;
   }
   
-  /* ЭКРАН АВТОРИЗАЦИИ */
   #authScreen { position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
   .auth-box { background: var(--book-purple); border: 2px solid var(--border-gold); padding: 40px; border-radius: 4px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5); position: relative;}
   .auth-box::before { content: ''; position: absolute; inset: 4px; border: 1px solid rgba(184, 138, 68, 0.3); pointer-events: none; }
@@ -50,12 +47,10 @@
   .auth-box button { width: 100%; padding: 14px; margin-bottom: 12px; font-size: 16px; }
   .auth-error { color: #ff8a8a; font-size: 14px; margin-bottom: 15px; display: none; }
 
-  /* ШАПКА */
   header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 30px; flex-wrap: wrap; border-bottom: 2px solid var(--border-gold); padding-bottom: 20px; }
   h1 { font-family: var(--font-title); font-size: 28px; margin: 0; font-weight: 700; color: var(--text-gold); letter-spacing: 1px; text-shadow: 0 2px 4px #000; }
-  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; }
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
   
-  /* КНОПКИ (В стиле металла / гравировки) */
   button { 
     background: linear-gradient(180deg, #3d1a40 0%, #2a1233 100%); color: var(--text-gold); 
     border: 1px solid var(--border-gold); padding: 10px 16px; border-radius: 4px; 
@@ -69,10 +64,8 @@
   button.danger { color: #ff8a8a; border-color: #7a2a2a; }
   button.danger:hover { background: #4a1a1a; border-color: #ff5555; color: #ff5555; }
   
-  /* ИКОНКИ */
   .icon { width: 18px; height: 18px; fill: currentColor; }
 
-  /* ПОИСК */
   .search-wrapper { position: relative; margin-bottom: 30px; }
   .search-bar { 
     width: 100%; padding: 16px 20px 16px 48px; border-radius: 4px; 
@@ -84,12 +77,10 @@
   .search-bar:focus { outline: none; border-color: var(--border-gold); box-shadow: inset 0 2px 10px rgba(0,0,0,0.8), 0 0 15px rgba(184, 138, 68, 0.3); }
   .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: var(--text-gold); }
 
-  /* ХЛЕБНЫЕ КРОШКИ */
   .breadcrumbs { font-size: 16px; color: var(--text-muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; font-family: var(--font-hand); }
   .breadcrumbs a { color: var(--text-gold); text-decoration: none; cursor: pointer; transition: 0.2s; }
   .breadcrumbs a:hover { color: #fff; text-shadow: 0 0 8px #fff; }
 
-  /* СЕТКА ПАЛИТР (Полка с книгами) */
   .grid-palettes { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; align-items: end; padding-bottom: 20px; border-bottom: 8px solid #110614; border-radius: 4px; box-shadow: 0 10px 20px -10px #000; }
   
   .book-spine { 
@@ -112,12 +103,10 @@
   .book-preview { display: flex; justify-content: center; gap: 2px; margin-top: 15px; }
   .book-preview div { width: 8px; height: 8px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.5); }
 
-  /* СЕТКА ЦВЕТОВ */
   .grid-colors { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
 
-  /* КАРТОЧКА ЦВЕТА (Страница книги) */
   .color-card { 
-    background: #f4ebd9; /* Цвет пергамента */
+    background: #f4ebd9;
     background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100" height="100" filter="url(%23noise)" opacity="0.05"/></svg>');
     border: 1px solid #c4b5a0; border-radius: 4px; 
     padding: 20px; display: flex; flex-direction: column; gap: 16px; position: relative; 
@@ -140,14 +129,12 @@
   .color-name { font-family: var(--font-title); font-weight: 700; font-size: 18px; line-height: 1.2; color: #2b1a22; margin-bottom: 4px; }
   .color-code { font-family: var(--font-hand); font-size: 16px; color: #5a4a3a; }
 
-  /* ФОРМУЛЫ */
   .formula-block { background: rgba(220, 205, 180, 0.5); border: 1px solid rgba(139, 100, 50, 0.2); border-radius: 4px; padding: 12px; }
   .formula-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .formula-base { font-family: var(--font-title); font-size: 12px; font-weight: 700; color: #6b4a2a; }
   .formula-content { font-family: var(--font-mono); font-size: 15px; line-height: 1.5; color: #1a0b1c; font-weight: 600; }
   .formula-content span.unit { color: #7a6a5a; font-size: 12px; }
   
-  /* КАЛЬКУЛЯТОР */
   .calc-row { 
     display: flex; align-items: center; justify-content: space-between; gap: 12px; 
     background: rgba(180, 160, 130, 0.2); padding: 8px 12px; border-radius: 4px; margin-top: 10px; 
@@ -161,14 +148,11 @@
   .calc-input:focus { outline: none; border-color: #8b6432; }
   .calc-label { font-family: var(--font-title); font-size: 11px; font-weight: bold; color: #6b4a2a; }
 
-  /* ТЕГИ */
-  .tags-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   .tag { font-size: 11px; padding: 2px 8px; border-radius: 2px; font-weight: 700; font-family: var(--font-title); text-transform: uppercase; letter-spacing: 0.5px; }
   .tag.material { background: rgba(29, 61, 46, 0.1); color: var(--book-emerald); border: 1px solid var(--book-emerald); }
   .tag.ncs { background: rgba(42, 18, 51, 0.1); color: var(--book-purple); border: 1px solid var(--book-purple); }
   .tag.old { background: rgba(140, 42, 42, 0.1); color: #8c2a2a; border: 1px solid #8c2a2a; }
 
-  /* ДЕЙСТВИЯ С ЦВЕТОМ */
   .card-actions { display: flex; gap: 8px; margin-top: auto; padding-top: 12px; border-top: 1px dashed rgba(139, 100, 50, 0.4); }
   .card-actions button { flex: 1; padding: 8px; font-size: 12px; justify-content: center; background: transparent; border: 1px solid rgba(139, 100, 50, 0.5); color: #4a3a2a; box-shadow: none; }
   .card-actions button:hover { background: rgba(139, 100, 50, 0.1); color: #1a0b1c; border-color: #6b4a2a; box-shadow: none; }
@@ -176,11 +160,9 @@
   .card-actions button.danger:hover { background: rgba(140, 42, 42, 0.1); color: #ff0000; }
   .card-actions .icon { width: 14px; height: 14px; }
 
-  /* ПУСТОЕ СОСТОЯНИЕ */
   .empty-state { text-align: center; color: var(--text-muted); padding: 60px 20px; font-family: var(--font-hand); font-size: 22px; }
   .empty-state svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.5; fill: var(--text-gold); }
 
-  /* УВЕДОМЛЕНИЯ */
   .toast { 
     position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); 
     background: var(--book-purple); color: var(--text-gold); border: 1px solid var(--text-gold); 
@@ -190,7 +172,6 @@
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast.error { background: #4a1a1a; color: #ff8a8a; border-color: #ff8a8a; }
 
-  /* МОДАЛЬНОЕ ОКНО */
   .modal-overlay { 
     position: fixed; inset: 0; background: rgba(10, 5, 10, 0.85); backdrop-filter: blur(4px); 
     display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; 
@@ -206,7 +187,6 @@
   .modal-close { position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: #6b4a2a; font-size: 28px; cursor: pointer; line-height: 1; transition: 0.2s; padding: 4px; z-index: 10;}
   .modal-close:hover { color: #1a0b1c; }
 
-  /* ДОПОЛНИТЕЛЬНЫЕ КНОПКИ (РЕДАКТИРОВАНИЕ) */
   .edit-btn { background: transparent; border: none; color: #7a6a5a; cursor: pointer; padding: 4px; display: inline-flex; align-items: center; border-radius: 2px; transition: 0.2s; }
   .edit-btn:hover { color: #2b1a22; background: rgba(139, 100, 50, 0.1); }
   .formula-edit-btn { background: transparent; border: 1px solid rgba(139, 100, 50, 0.4); color: #6b4a2a; font-size: 11px; padding: 2px 8px; border-radius: 2px; cursor: pointer; transition: 0.2s; font-family: var(--font-title); }
@@ -248,6 +228,10 @@
       <button onclick="document.getElementById('importFiles').click()" class="primary">
         <svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/></svg>
         Влить данные
+      </button>
+      <button onclick="burnBase()" id="burnBtn" class="danger" style="display:none;" title="Удалить всё и загрузить заново">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        Сжечь
       </button>
       <button onclick="toggleArchiveView()" id="archiveBtn">
         <svg class="icon" viewBox="0 0 24 24"><path d="M20 6H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2zm0 12H4V8h16v10zM2 4h20v2H2z"/></svg>
@@ -368,7 +352,8 @@ async function savePaletteToCloud(palette) {
 
 async function clearCloudBase() {
   const { error } = await supabaseClient.from('palettes').delete().neq('id', 'dummy_value_that_never_exists');
-  if (error) { toast('Ошибка очистки: ' + error.message, true); }
+  if (error) { toast('Ошибка очистки: ' + error.message, true); return false; }
+  return true;
 }
 
 // ============ ЛОГИКА ДАННЫХ ============
@@ -487,8 +472,8 @@ async function handleImport(e) {
   if (dataFormula.length > 0) buildFormulas(dataFormula, dataComponent, false);
   if (dataFormulaOld.length > 0) buildFormulas(dataFormulaOld, dataComponentOld, true);
 
-  const virtualNCS = { id: 'virtual_ncs', name: 'Справочник NCS', colors: [], isVirtual: true };
-  const virtualRAL = { id: 'virtual_ral', name: 'Справочник RAL', colors: [], isVirtual: true };
+  const virtualNCS = { id: 999999001, name: 'Справочник NCS', colors: [], isVirtual: true };
+  const virtualRAL = { id: 999999002, name: 'Справочник RAL', colors: [], isVirtual: true };
 
   Object.values(colorsMap).forEach(c => {
     if (c.formulas.length === 0) return;
@@ -510,13 +495,17 @@ async function handleImport(e) {
 
   await clearCloudBase();
   
-  if (virtualNCS.colors.length > 0) { virtualNCS.colors.sort((a,b) => (a.EXTERNAL_NAME||'').localeCompare(b.EXTERNAL_NAME||'')); await savePaletteToCloud(virtualNCS); }
-  if (virtualRAL.colors.length > 0) { virtualRAL.colors.sort((a,b) => (a.EXTERNAL_NAME||'').localeCompare(b.EXTERNAL_NAME||'')); await savePaletteToCloud(virtualRAL); }
+  // Сохраняем пачкой для скорости
+  const allToSave = [];
+  if (virtualNCS.colors.length > 0) { virtualNCS.colors.sort((a,b) => (a.EXTERNAL_NAME||'').localeCompare(b.EXTERNAL_NAME||'')); allToSave.push(virtualNCS); }
+  if (virtualRAL.colors.length > 0) { virtualRAL.colors.sort((a,b) => (a.EXTERNAL_NAME||'').localeCompare(b.EXTERNAL_NAME||'')); allToSave.push(virtualRAL); }
   
   for (let key in palettesObj) {
     const p = palettesObj[key];
-    if (p.colors.length > 0) { p.colors.sort((a,b) => (a.EXTERNAL_NAME||'').localeCompare(b.EXTERNAL_NAME||'')); await savePaletteToCloud(p); }
+    if (p.colors.length > 0) { p.colors.sort((a,b) => (a.EXTERNAL_NAME||'').localeCompare(b.EXTERNAL_NAME||'')); allToSave.push(p); }
   }
+
+  for (const p of allToSave) await savePaletteToCloud(p);
 
   toast('Гримуар обновлен');
   await loadDataFromCloud();
@@ -530,10 +519,38 @@ let currentItems = []; let visibleCount = 50; const PAGE_SIZE = 50;
 function toggleArchiveView() { isArchiveView = !isArchiveView; $('archiveBtn').classList.toggle('primary', isArchiveView); currentPaletteId = null; $('search').value = ''; render(); }
 
 function toggleEditMode() {
-  if (isEditMode) { isEditMode = false; $('editModeBtn').classList.remove('primary'); toast('Режим чтения.'); render(); return; }
+  if (isEditMode) { 
+    isEditMode = false; 
+    $('editModeBtn').classList.remove('primary'); 
+    $('burnBtn').style.display = 'none'; 
+    toast('Режим чтения.'); 
+    render(); 
+    return; 
+  }
   const pass = prompt('Секретное слово для правки:');
-  if (pass === '1234') { isEditMode = true; $('editModeBtn').classList.add('primary'); toast('Режим правки.'); render(); }
+  if (pass === '1234') { 
+    isEditMode = true; 
+    $('editModeBtn').classList.add('primary'); 
+    $('burnBtn').style.display = 'inline-flex'; 
+    toast('Режим правки.'); 
+    render(); 
+  }
   else if (pass !== null) toast('Неверное слово.', true);
+}
+
+async function burnBase() {
+  if (!confirm('🔥 ВНИМАНИЕ! Это удалит ВСЮ базу из облака. Продолжить?')) return;
+  const check = prompt('Напишите слово СЖЕЧЬ заглавными буквами для подтверждения:');
+  if (check !== 'СЖЕЧЬ') { toast('Ритуал отменен', true); return; }
+  
+  await clearCloudBase();
+  allPalettes = [];
+  currentPaletteId = null;
+  render();
+  toast('База уничтожена. Выберите файлы для новой загрузки.');
+  
+  // Сразу открываем окно выбора файлов
+  $('importFiles').click();
 }
 
 let searchTimeout;
@@ -756,7 +773,6 @@ function renderColors(){
   updateLoadMoreBtn(itemsToShow.length, currentItems.length);
 }
 
-// Калькулятор пересчета (мл / oz)
 function syncCalc(colorId, fIndex, value, sourceUnit) {
   const val = parseFloat(value); if (isNaN(val) || val <= 0) return;
   const inputL = document.getElementById(`vol_l_${colorId}_${fIndex}`); const inputOz = document.getElementById(`vol_oz_${colorId}_${fIndex}`);
