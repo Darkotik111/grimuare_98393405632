@@ -6,226 +6,212 @@
 <title>Гримуар повелительниц подземелья</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Cinzel:wght@600;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
   :root {
-    --bg-dark: #1a0b1c;
-    --bg-wall: #2a1233;
-    --book-purple: #3d1a40;
-    --book-emerald: #1d3d2e;
-    --book-magenta: #8c2a6e;
-    --book-grey: #4a3e51;
+    /* Палитра с картинки */
+    --bg-main: #2A1E18;      /* Глубокий коричневый фон */
+    --bg-card: #3B2B24;      /* Чуть светлее для карточек */
+    --color-ebony: #575A4B;  /* Темно-зеленый */
+    --color-taupe: #816C61;  /* Серо-коричневый */
+    --color-lilac: #A89B9D;  /* Пыльно-розовый */
+    --color-lavender: #CFCFEA; /* Светло-сиреневый */
     
-    --text-ink: #2b1a22;
-    --text-gold: #e6b95c;
-    --text-light: #e2d5e8;
-    --text-muted: #9a7e9e;
+    --text-main: #F4F4F4;
+    --text-muted: #A89B9D;
+    --text-dark: #2A1E18;
     
-    --border-gold: #b88a44;
-    --border-dark: #110614;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --border-focus: #CFCFEA;
     
-    --font-title: 'Cinzel', Georgia, serif;
-    --font-hand: 'Caveat', cursive, Georgia, serif;
-    --font-body: 'EB Garamond', Georgia, serif;
+    --font-sans: 'Inter', -apple-system, sans-serif;
     --font-mono: ui-monospace, 'Courier New', monospace;
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body { 
-    margin: 0; font-family: var(--font-body); background-color: var(--bg-dark); 
-    background-image: radial-gradient(circle at center, var(--bg-wall) 0%, var(--bg-dark) 100%);
-    color: var(--text-light); min-height: 100vh; padding: 20px; padding-bottom: 90px; 
-    background-attachment: fixed; font-size: 16px;
+    margin: 0; font-family: var(--font-sans); background-color: var(--bg-main); 
+    color: var(--text-main); min-height: 100vh; padding: 20px; padding-bottom: 90px; 
+    font-size: 15px; line-height: 1.5;
   }
   
-  #authScreen { position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
-  .auth-box { background: var(--book-purple); border: 2px solid var(--border-gold); padding: 40px; border-radius: 4px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5); position: relative;}
-  .auth-box::before { content: ''; position: absolute; inset: 4px; border: 1px solid rgba(184, 138, 68, 0.3); pointer-events: none; }
-  .auth-box h2 { font-family: var(--font-title); color: var(--text-gold); font-size: 28px; margin-top: 0; margin-bottom: 30px; text-shadow: 0 2px 4px #000; }
-  .auth-box input { width: 100%; padding: 12px; margin-bottom: 16px; background: #1a0b1c; border: 1px solid var(--border-gold); color: var(--text-light); border-radius: 2px; font-family: var(--font-body); font-size: 16px; }
-  .auth-box input:focus { outline: none; border-color: #e6b95c; box-shadow: 0 0 8px rgba(230, 185, 92, 0.3); }
-  .auth-box button { width: 100%; padding: 14px; margin-bottom: 12px; font-size: 16px; }
+  /* ЭКРАН АВТОРИЗАЦИИ */
+  #authScreen { position: fixed; inset: 0; background: var(--bg-main); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .auth-box { background: var(--bg-card); border: 1px solid var(--border-color); padding: 40px; border-radius: 16px; width: 100%; max-width: 400px; text-align: center; }
+  .auth-box h2 { font-size: 24px; margin-top: 0; margin-bottom: 30px; font-weight: 700; color: var(--color-lavender); }
+  .auth-box input { width: 100%; padding: 14px; margin-bottom: 16px; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 8px; font-family: var(--font-sans); font-size: 15px; }
+  .auth-box input:focus { outline: none; border-color: var(--border-focus); }
+  .auth-box button { width: 100%; padding: 14px; margin-bottom: 12px; font-size: 16px; border-radius: 8px; }
   .auth-error { color: #ff8a8a; font-size: 14px; margin-bottom: 15px; display: none; }
 
-  header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 30px; flex-wrap: wrap; border-bottom: 2px solid var(--border-gold); padding-bottom: 20px; }
-  h1 { font-family: var(--font-title); font-size: 28px; margin: 0; font-weight: 700; color: var(--text-gold); letter-spacing: 1px; text-shadow: 0 2px 4px #000; }
-  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  /* ШАПКА */
+  header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 30px; flex-wrap: wrap; }
+  h1 { font-size: 24px; margin: 0; font-weight: 600; color: var(--color-lavender); }
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; }
   
+  /* КНОПКИ */
   button { 
-    background: linear-gradient(180deg, #3d1a40 0%, #2a1233 100%); color: var(--text-gold); 
-    border: 1px solid var(--border-gold); padding: 10px 16px; border-radius: 4px; 
-    font-size: 14px; font-family: var(--font-title); cursor: pointer; transition: 0.2s; 
-    font-weight: 600; display: inline-flex; align-items: center; gap: 8px; letter-spacing: 0.5px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); 
+    padding: 10px 16px; border-radius: 8px; font-size: 14px; font-family: var(--font-sans); 
+    cursor: pointer; transition: 0.2s; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;
   }
-  button:hover { background: #4d2152; border-color: #ffd700; color: #ffd700; box-shadow: 0 0 10px rgba(230, 185, 92, 0.4); }
-  button.primary { background: var(--book-emerald); border-color: var(--text-gold); color: #a4e3c3; }
-  button.primary:hover { background: #2a5a45; color: #fff; }
-  button.danger { color: #ff8a8a; border-color: #7a2a2a; }
-  button.danger:hover { background: #4a1a1a; border-color: #ff5555; color: #ff5555; }
+  button:hover { background: #4a382e; border-color: var(--text-muted); }
+  button.primary { background: var(--color-lavender); color: var(--text-dark); border-color: var(--color-lavender); font-weight: 600; }
+  button.primary:hover { background: #e0e0ff; }
+  button.danger { color: #ff8a8a; border-color: rgba(255, 138, 138, 0.3); }
+  button.danger:hover { background: rgba(255, 138, 138, 0.1); }
   
+  /* ИКОНКИ */
   .icon { width: 18px; height: 18px; fill: currentColor; }
 
+  /* ПОИСК */
   .search-wrapper { position: relative; margin-bottom: 30px; }
   .search-bar { 
-    width: 100%; padding: 16px 20px 16px 48px; border-radius: 4px; 
-    border: 2px solid var(--border-dark); background: rgba(10, 5, 10, 0.6); color: var(--text-gold); 
-    font-size: 18px; font-family: var(--font-hand); transition: 0.2s; 
-    box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+    width: 100%; padding: 16px 20px 16px 48px; border-radius: 12px; 
+    border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); 
+    font-size: 16px; font-family: var(--font-sans); transition: 0.2s; 
   }
   .search-bar::placeholder { color: var(--text-muted); }
-  .search-bar:focus { outline: none; border-color: var(--border-gold); box-shadow: inset 0 2px 10px rgba(0,0,0,0.8), 0 0 15px rgba(184, 138, 68, 0.3); }
-  .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: var(--text-gold); }
+  .search-bar:focus { outline: none; border-color: var(--border-focus); }
+  .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: var(--text-muted); }
 
-  .breadcrumbs { font-size: 16px; color: var(--text-muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; font-family: var(--font-hand); }
-  .breadcrumbs a { color: var(--text-gold); text-decoration: none; cursor: pointer; transition: 0.2s; }
-  .breadcrumbs a:hover { color: #fff; text-shadow: 0 0 8px #fff; }
+  /* ХЛЕБНЫЕ КРОШКИ */
+  .breadcrumbs { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+  .breadcrumbs a { color: var(--color-lavender); text-decoration: none; cursor: pointer; transition: 0.2s; font-weight: 500; }
+  .breadcrumbs a:hover { text-decoration: underline; }
 
-  /* ПОЛКА С КНИГАМИ (Палитры) */
-  .grid-palettes { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; align-items: end; padding-bottom: 20px; border-bottom: 8px solid #110614; border-radius: 4px; box-shadow: 0 10px 20px -10px #000; }
+  /* СЕТКА ПАЛИТР */
+  .grid-palettes { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-bottom: 40px; }
   
-  .book-spine { 
-    background: var(--book-purple); border: 1px solid var(--border-dark); border-radius: 4px 4px 0 0;
-    padding: 20px 16px; cursor: pointer; transition: 0.2s; position: relative;
-    min-height: 220px; display: flex; flex-direction: column;
-    box-shadow: 3px 0 10px rgba(0,0,0,0.6), inset -2px 0 5px rgba(255,255,255,0.05);
+  .palette-card { 
+    background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px;
+    padding: 20px; cursor: pointer; transition: 0.2s; position: relative;
+    display: flex; flex-direction: column; gap: 16px;
   }
-  .book-spine:nth-child(3n+1) { background: var(--book-magenta); }
-  .book-spine:nth-child(3n+2) { background: var(--book-emerald); }
-  .book-spine:nth-child(3n+3) { background: var(--book-grey); }
+  .palette-card:hover { border-color: var(--text-muted); transform: translateY(-2px); }
   
-  .book-spine:hover { transform: translateY(-10px); box-shadow: 5px 10px 20px rgba(0,0,0,0.8); z-index: 2; }
+  .palette-header { display: flex; justify-content: space-between; align-items: flex-start; }
+  .palette-title { font-weight: 600; font-size: 18px; color: var(--text-main); line-height: 1.3; }
+  .palette-meta { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
   
-  .book-title { font-family: var(--font-title); font-weight: 700; font-size: 18px; color: var(--text-gold); line-height: 1.2; text-align: center; margin-bottom: 8px; text-shadow: 0 1px 2px #000; }
-  .book-meta { font-family: var(--font-hand); font-size: 16px; color: rgba(255,255,255,0.7); text-align: center; margin-top: auto; }
-  .book-decor { height: 2px; background: var(--text-gold); width: 60%; margin: 10px auto; opacity: 0.5; border-radius: 2px; }
-  .book-preview { display: flex; justify-content: center; gap: 2px; margin-top: 15px; }
-  .book-preview div { width: 8px; height: 8px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.5); }
+  .palette-preview { display: flex; gap: 4px; height: 40px; border-radius: 8px; overflow: hidden; }
+  .palette-preview div { flex: 1; }
 
-  /* БЛОК СПРАВОЧНИКОВ (NCS / RAL) */
+  /* БЛОК СПРАВОЧНИКОВ */
   .directory-section { margin-top: 40px; }
-  .directory-title { font-family: var(--font-title); color: var(--text-gold); font-size: 22px; margin-bottom: 20px; border-bottom: 1px solid var(--border-gold); padding-bottom: 10px; text-shadow: 0 2px 4px #000;}
+  .directory-title { font-size: 20px; font-weight: 600; color: var(--text-main); margin-bottom: 20px; }
   .directory-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
   
   .directory-card { 
-    background: linear-gradient(135deg, rgba(61,26,64,0.8) 0%, rgba(26,11,28,0.9) 100%);
-    border: 2px solid var(--border-gold); border-radius: 8px; padding: 20px; cursor: pointer;
-    transition: 0.3s; display: flex; align-items: center; gap: 16px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; 
+    padding: 20px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 16px;
   }
-  .directory-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(230,185,92,0.2); border-color: #ffd700; }
-  .directory-icon { width: 48px; height: 48px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; border: 2px solid var(--text-gold); background: var(--bg-dark); }
-  .directory-info h3 { margin: 0 0 4px 0; font-family: var(--font-title); color: var(--text-gold); font-size: 20px; }
-  .directory-info p { margin: 0; font-family: var(--font-hand); color: var(--text-muted); font-size: 16px; }
+  .directory-card:hover { border-color: var(--text-muted); transform: translateY(-2px); }
+  .directory-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; justify-content: center; align-items: center; background: var(--bg-main); color: var(--color-lavender); }
+  .directory-icon svg { width: 24px; height: 24px; fill: currentColor; }
+  .directory-info h3 { margin: 0 0 4px 0; font-weight: 600; font-size: 18px; color: var(--text-main); }
+  .directory-info p { margin: 0; font-size: 13px; color: var(--text-muted); }
 
   /* СЕТКА ЦВЕТОВ */
   .grid-colors { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
 
   .color-card { 
-    background: #f4ebd9;
-    background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100" height="100" filter="url(%23noise)" opacity="0.05"/></svg>');
-    border: 1px solid #c4b5a0; border-radius: 4px; 
+    background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; 
     padding: 20px; display: flex; flex-direction: column; gap: 16px; position: relative; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5); color: var(--text-ink);
-    content-visibility: auto; contain-intrinsic-size: 150px;
+    content-visibility: auto; contain-intrinsic-size: 200px;
   }
-  .color-card::after { content: ''; position: absolute; inset: 4px; border: 1px solid rgba(139, 100, 50, 0.3); pointer-events: none; }
-  
   .color-card.clickable { cursor: pointer; transition: 0.2s; }
-  .color-card.clickable:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.7); }
+  .color-card.clickable:hover { border-color: var(--text-muted); transform: translateY(-2px); }
   
   .color-header { display: flex; gap: 16px; align-items: center; }
   .color-swatch { 
-    width: 56px; height: 56px; border-radius: 50%; border: 3px solid #c4b5a0; 
-    flex-shrink: 0; box-shadow: inset 0 2px 5px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2); position: relative;
+    width: 56px; height: 56px; border-radius: 12px; 
+    flex-shrink: 0; box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); position: relative;
   }
-  .color-swatch::after { content: ''; position: absolute; top: 6px; left: 8px; width: 14px; height: 6px; background: rgba(255,255,255,0.4); border-radius: 50%; transform: rotate(-45deg); }
+  .color-swatch::after { content: ''; position: absolute; top: 6px; left: 8px; width: 14px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 50%; transform: rotate(-45deg); }
   
   .color-info { flex: 1; min-width: 0; }
-  .color-name { font-family: var(--font-title); font-weight: 700; font-size: 18px; line-height: 1.2; color: #2b1a22; margin-bottom: 4px; }
-  .color-code { font-family: var(--font-hand); font-size: 16px; color: #5a4a3a; }
+  .color-name { font-weight: 600; font-size: 18px; line-height: 1.2; color: var(--text-main); margin-bottom: 4px; }
+  .color-code { font-family: var(--font-mono); font-size: 14px; color: var(--text-muted); }
 
-  /* ВНУТРЕННЯЯ КАРТОЧКА (в справочнике) */
-  .color-card.compact { padding: 12px; gap: 8px; }
-  .color-card.compact .color-swatch { width: 40px; height: 40px; border-width: 2px; }
+  /* ВНУТРЕННЯЯ КАРТОЧКА СПРАВОЧНИКА */
+  .color-card.compact { padding: 16px; gap: 12px; }
+  .color-card.compact .color-swatch { width: 44px; height: 44px; border-radius: 8px; }
   .color-card.compact .color-name { font-size: 16px; }
-  .color-card.compact .color-code { font-size: 14px; }
-  .view-recipe-btn { width: 100%; margin-top: 4px; padding: 6px; background: rgba(139, 100, 50, 0.1); border: 1px solid rgba(139, 100, 50, 0.4); color: #6b4a2a; border-radius: 2px; cursor: pointer; font-family: var(--font-title); font-size: 11px; transition: 0.2s; }
-  .view-recipe-btn:hover { background: rgba(139, 100, 50, 0.2); color: #1a0b1c; }
+  .view-recipe-btn { width: 100%; margin-top: 8px; padding: 8px; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; transition: 0.2s; }
+  .view-recipe-btn:hover { border-color: var(--color-lavender); color: var(--color-lavender); }
 
   /* ФОРМУЛЫ */
-  .formula-block { background: rgba(220, 205, 180, 0.5); border: 1px solid rgba(139, 100, 50, 0.2); border-radius: 4px; padding: 12px; }
-  .formula-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .formula-base { font-family: var(--font-title); font-size: 12px; font-weight: 700; color: #6b4a2a; }
-  .formula-content { font-family: var(--font-mono); font-size: 15px; line-height: 1.5; color: #1a0b1c; font-weight: 600; }
-  .formula-content span.unit { color: #7a6a5a; font-size: 12px; }
+  .formula-block { background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; }
+  .formula-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .formula-base { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
+  .formula-content { font-family: var(--font-mono); font-size: 14px; line-height: 1.6; color: var(--color-lavender); }
+  .formula-content span.unit { color: var(--text-muted); font-size: 12px; }
   
   .calc-row { 
     display: flex; align-items: center; justify-content: space-between; gap: 12px; 
-    background: rgba(180, 160, 130, 0.2); padding: 8px 12px; border-radius: 4px; margin-top: 10px; 
-    font-size: 13px; color: #4a3a2a; border: 1px solid rgba(139, 100, 50, 0.2);
+    background: var(--bg-card); padding: 10px 12px; border-radius: 8px; margin-top: 12px; 
+    font-size: 13px; color: var(--text-muted); border: 1px solid var(--border-color);
   }
   .calc-inputs { display: flex; align-items: center; gap: 8px; }
   .calc-input { 
-    width: 65px; padding: 4px 6px; border-radius: 2px; border: 1px solid rgba(139, 100, 50, 0.4); 
-    background: #f4ebd9; color: #1a0b1c; font-family: var(--font-mono); text-align: center; font-size: 14px; font-weight: bold;
+    width: 70px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-color); 
+    background: var(--bg-main); color: var(--text-main); font-family: var(--font-mono); text-align: center; font-size: 13px;
   }
-  .calc-input:focus { outline: none; border-color: #8b6432; }
-  .calc-label { font-family: var(--font-title); font-size: 11px; font-weight: bold; color: #6b4a2a; }
+  .calc-input:focus { outline: none; border-color: var(--color-lavender); }
 
-  .tag { font-size: 11px; padding: 2px 8px; border-radius: 2px; font-weight: 700; font-family: var(--font-title); text-transform: uppercase; letter-spacing: 0.5px; }
-  .tag.material { background: rgba(29, 61, 46, 0.1); color: var(--book-emerald); border: 1px solid var(--book-emerald); }
-  .tag.ncs { background: rgba(42, 18, 51, 0.1); color: var(--book-purple); border: 1px solid var(--book-purple); }
-  .tag.old { background: rgba(140, 42, 42, 0.1); color: #8c2a2a; border: 1px solid #8c2a2a; }
+  /* ТЕГИ */
+  .tag { font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .tag.material { background: rgba(207, 207, 234, 0.1); color: var(--color-lavender); }
+  .tag.ncs { background: rgba(168, 155, 157, 0.15); color: #C9BABB; }
+  .tag.old { background: rgba(255, 138, 138, 0.1); color: #ff8a8a; }
 
-  .card-actions { display: flex; gap: 8px; margin-top: auto; padding-top: 12px; border-top: 1px dashed rgba(139, 100, 50, 0.4); }
-  .card-actions button { flex: 1; padding: 8px; font-size: 12px; justify-content: center; background: transparent; border: 1px solid rgba(139, 100, 50, 0.5); color: #4a3a2a; box-shadow: none; }
-  .card-actions button:hover { background: rgba(139, 100, 50, 0.1); color: #1a0b1c; border-color: #6b4a2a; box-shadow: none; }
-  .card-actions button.danger { color: #8c2a2a; border-color: #8c2a2a; }
-  .card-actions button.danger:hover { background: rgba(140, 42, 42, 0.1); color: #ff0000; }
-  .card-actions .icon { width: 14px; height: 14px; }
+  /* ДЕЙСТВИЯ */
+  .card-actions { display: flex; gap: 8px; margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-color); }
+  .card-actions button { flex: 1; padding: 8px; font-size: 13px; justify-content: center; background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
+  .card-actions button:hover { background: var(--bg-main); }
+  .card-actions button.danger { color: #ff8a8a; }
+  .card-actions button.danger:hover { border-color: rgba(255, 138, 138, 0.3); }
 
-  .empty-state { text-align: center; color: var(--text-muted); padding: 60px 20px; font-family: var(--font-hand); font-size: 22px; }
-  .empty-state svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.5; fill: var(--text-gold); }
+  .empty-state { text-align: center; color: var(--text-muted); padding: 60px 20px; font-size: 16px; }
+  .empty-state svg { width: 48px; height: 48px; margin-bottom: 16px; opacity: 0.3; fill: var(--text-muted); }
 
   .toast { 
     position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); 
-    background: var(--book-purple); color: var(--text-gold); border: 1px solid var(--text-gold); 
-    padding: 16px 32px; border-radius: 4px; font-family: var(--font-title); font-weight: 600; font-size: 16px;
-    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 300; box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+    background: var(--color-lavender); color: var(--text-dark); 
+    padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 15px;
+    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 300; box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.error { background: #4a1a1a; color: #ff8a8a; border-color: #ff8a8a; }
+  .toast.error { background: #ff8a8a; color: #fff; }
 
+  /* МОДАЛЬНОЕ ОКНО */
   .modal-overlay { 
-    position: fixed; inset: 0; background: rgba(10, 5, 10, 0.85); backdrop-filter: blur(4px); 
+    position: fixed; inset: 0; background: rgba(42, 30, 24, 0.85); backdrop-filter: blur(4px); 
     display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; 
   }
   .modal-overlay.active { display: flex; }
   .modal-content { 
-    background: #f4ebd9; border: 2px solid #8b6432; border-radius: 4px; 
+    background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; 
     width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; padding: 32px; 
-    box-shadow: 0 20px 50px rgba(0,0,0,0.8); position: relative; animation: modalIn 0.3s ease-out; color: var(--text-ink);
+    position: relative; animation: modalIn 0.3s ease-out; color: var(--text-main);
   }
-  .modal-content::after { content: ''; position: absolute; inset: 6px; border: 1px solid rgba(139, 100, 50, 0.3); pointer-events: none; }
   @keyframes modalIn { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-  .modal-close { position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: #6b4a2a; font-size: 28px; cursor: pointer; line-height: 1; transition: 0.2s; padding: 4px; z-index: 10;}
-  .modal-close:hover { color: #1a0b1c; }
+  .modal-close { position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; line-height: 1; transition: 0.2s; padding: 4px; }
+  .modal-close:hover { color: var(--text-main); }
 
-  .edit-btn { background: transparent; border: none; color: #7a6a5a; cursor: pointer; padding: 4px; display: inline-flex; align-items: center; border-radius: 2px; transition: 0.2s; }
-  .edit-btn:hover { color: #2b1a22; background: rgba(139, 100, 50, 0.1); }
-  .formula-edit-btn { background: transparent; border: 1px solid rgba(139, 100, 50, 0.4); color: #6b4a2a; font-size: 11px; padding: 2px 8px; border-radius: 2px; cursor: pointer; transition: 0.2s; font-family: var(--font-title); }
-  .formula-edit-btn:hover { border-color: #8b6432; color: #1a0b1c; }
+  .edit-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: inline-flex; align-items: center; border-radius: 4px; transition: 0.2s; }
+  .edit-btn:hover { color: var(--text-main); background: var(--bg-main); }
+  .formula-edit-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); font-size: 11px; padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: 500; }
+  .formula-edit-btn:hover { border-color: var(--text-main); color: var(--text-main); }
 
   @media (max-width: 600px) {
     body { padding: 12px; }
     h1 { font-size: 20px; }
     .toolbar { width: 100%; justify-content: space-between; }
-    .toolbar button { flex: 1; padding: 8px 4px; font-size: 11px; }
+    .toolbar button { flex: 1; padding: 10px 4px; font-size: 12px; }
     .grid-colors { grid-template-columns: 1fr; }
-    .grid-palettes { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
-    .book-spine { min-height: 180px; padding: 15px 10px; }
-    .book-title { font-size: 14px; }
+    .grid-palettes { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
     .modal-content { padding: 24px; }
     .calc-row { flex-direction: column; align-items: flex-start; }
     .directory-cards { grid-template-columns: 1fr; }
@@ -239,10 +225,10 @@
   <div class="auth-box">
     <h2>Вход в Гримуар</h2>
     <div class="auth-error" id="authError"></div>
-    <input type="email" id="authEmail" placeholder="Тайный email (почта)">
+    <input type="email" id="authEmail" placeholder="Email">
     <input type="password" id="authPass" placeholder="Пароль">
     <button class="primary" onclick="login()">Открыть книгу</button>
-    <button onclick="register()" style="background:transparent; border:none; color:var(--text-muted); font-size:14px; text-decoration:underline; margin-top:8px; width:auto; padding:0; box-shadow:none;">Посвятить нового коллегу</button>
+    <button onclick="register()" style="background:transparent; border:none; color:var(--text-muted); font-size:14px; text-decoration:underline; margin-top:8px; width:auto; padding:0;">Регистрация</button>
   </div>
 </div>
 
@@ -253,15 +239,15 @@
     <div class="toolbar" id="toolbar">
       <button onclick="document.getElementById('importFiles').click()" class="primary">
         <svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/></svg>
-        Влить данные
+        Загрузить
       </button>
-      <button onclick="burnBase()" id="burnBtn" class="danger" style="display:none;" title="Удалить всё и загрузить заново">
+      <button onclick="burnBase()" id="burnBtn" class="danger" style="display:none;">
         <svg class="icon" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
         Сжечь
       </button>
       <button onclick="toggleArchiveView()" id="archiveBtn">
         <svg class="icon" viewBox="0 0 24 24"><path d="M20 6H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2zm0 12H4V8h16v10zM2 4h20v2H2z"/></svg>
-        Забвение
+        Архив
       </button>
       <button onclick="toggleEditMode()" id="editModeBtn">
         <svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
@@ -279,14 +265,14 @@
   
   <div class="search-wrapper">
     <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-    <input class="search-bar" id="search" placeholder="Поиск заклинаний (цветов)..." oninput="onSearchInput()">
+    <input class="search-bar" id="search" placeholder="Поиск по названию или коду..." oninput="onSearchInput()">
   </div>
 
   <div id="list"></div>
   
   <div class="empty-state" id="empty" style="display:none">
     <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
-    <p>Страницы пусты. Влейте данные, чтобы оживить Гримуар.</p>
+    <p>База пуста. Загрузите данные, чтобы начать.</p>
   </div>
   
   <button class="load-more" id="loadMoreBtn" style="display:none" onclick="loadMore()">Показать еще...</button>
@@ -462,7 +448,7 @@ async function handleImport(e) {
   }
 
   if (!dataColor.length || (!dataFormula.length && !dataFormulaOld.length)) { toast('Нет файлов color или formula', true); return; }
-  $('pageTitle').textContent = 'Переплетаем страницы...';
+  $('pageTitle').textContent = 'Загрузка...';
 
   const palettesObj = {};
   dataPalette.forEach(p => { 
@@ -532,7 +518,7 @@ async function handleImport(e) {
 
   for (const p of allToSave) await savePaletteToCloud(p);
 
-  toast('Гримуар обновлен');
+  toast('Данные обновлены');
   await loadDataFromCloud();
   e.target.value = '';
 }
@@ -548,31 +534,31 @@ function toggleEditMode() {
     isEditMode = false; 
     $('editModeBtn').classList.remove('primary'); 
     $('burnBtn').style.display = 'none'; 
-    toast('Режим чтения.'); 
+    toast('Режим чтения'); 
     render(); 
     return; 
   }
-  const pass = prompt('Секретное слово для правки:');
+  const pass = prompt('Пароль для редактирования:');
   if (pass === '1234') { 
     isEditMode = true; 
     $('editModeBtn').classList.add('primary'); 
     $('burnBtn').style.display = 'inline-flex'; 
-    toast('Режим правки.'); 
+    toast('Режим правки'); 
     render(); 
   }
-  else if (pass !== null) toast('Неверное слово.', true);
+  else if (pass !== null) toast('Неверный пароль', true);
 }
 
 async function burnBase() {
-  if (!confirm('🔥 ВНИМАНИЕ! Это удалит ВСЮ базу из облака. Продолжить?')) return;
-  const check = prompt('Напишите слово СЖЕЧЬ заглавными буквами для подтверждения:');
-  if (check !== 'СЖЕЧЬ') { toast('Ритуал отменен', true); return; }
+  if (!confirm('Удалить ВСЮ базу данных? Это действие необратимо.')) return;
+  const check = prompt('Напишите слово СЖЕЧЬ для подтверждения:');
+  if (check !== 'СЖЕЧЬ') { toast('Отменено', true); return; }
   
   await clearCloudBase();
   allPalettes = [];
   currentPaletteId = null;
   render();
-  toast('База уничтожена. Выберите файлы для новой загрузки.');
+  toast('База удалена.');
   $('importFiles').click();
 }
 
@@ -592,7 +578,7 @@ function renderListOnly() { if(!currentPaletteId){ renderPalettes(); } else { re
 function renderGlobalSearch() {
   const q = $('search').value.trim().toLowerCase();
   $('pageTitle').textContent = `Поиск: "${q}"`;
-  $('crumbs').style.display='flex'; $('crumbs').innerHTML=`<a onclick="clearSearch()">← Назад</a>`;
+  $('crumbs').style.display='flex'; $('crumbs').innerHTML=`<a onclick="clearSearch()">Назад</a>`;
   
   const allColors = [];
   allPalettes.forEach(p => {
@@ -625,7 +611,7 @@ function renderGlobalSearch() {
         <div class="color-info">
           <div class="color-name">${escapeHtml(nameData.main)} ${ncsBadge}</div>
           <div class="color-code">${escapeHtml(nameData.sub)}</div>
-          <div style="font-size: 12px; color: #8c2a6e; margin-top: 6px; font-family: var(--font-hand);">Из: ${escapeHtml(c.sourcePaletteName)}</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Из: ${escapeHtml(c.sourcePaletteName)}</div>
         </div>
       </div>
       ${formulasHtml}`;
@@ -639,10 +625,9 @@ function clearSearch() { $('search').value = ''; currentPaletteId = null; visibl
 function renderPalettes(){
   const q=$('search').value.trim().toLowerCase();
   const totalRecipes = allPalettes.reduce((sum, p) => sum + p.colors.filter(c => !c.isArchived).length, 0);
-  $('pageTitle').textContent = isArchiveView ? 'Забвение' : `Гримуар (${totalRecipes})`;
+  $('pageTitle').textContent = isArchiveView ? 'Архив' : `Гримуар (${totalRecipes})`;
   $('crumbs').style.display='none';
   
-  // Отделяем виртуальные справочники от обычных палитр
   const virtualPalettes = allPalettes.filter(p => p.isVirtual);
   const realPalettes = allPalettes.filter(p => !p.isVirtual);
 
@@ -656,40 +641,43 @@ function renderPalettes(){
   
   const list=$('list'); list.innerHTML='';
   
-  // 1. Полка с книгами (палитры)
+  // 1. Полка с палитрами
   const bookShelf = document.createElement('div');
   bookShelf.className = 'grid-palettes';
   const itemsToShow = currentItems.slice(0, visibleCount);
   
   for(const p of itemsToShow){
-    const el=document.createElement('div'); el.className='book-spine';
+    const el=document.createElement('div'); el.className='palette-card';
     const count = isArchiveView ? p.archivedCount : p.activeCount; if (count === 0) el.style.opacity = '0.5';
     el.onclick=(e)=>{ if (e.target.tagName === 'BUTTON' || e.target.tagName === 'svg') return; currentPaletteId=p.id; $('search').value=''; visibleCount = PAGE_SIZE; render(); };
     
-    let renameBtn = ''; if (isEditMode) renameBtn = `<button class="edit-btn" style="position:absolute; top:10px; right:10px; color:var(--text-gold);" onclick="renamePalette('${p.id}')" title="Переименовать"><svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>`;
+    let renameBtn = ''; if (isEditMode) renameBtn = `<button class="edit-btn" onclick="renamePalette('${p.id}')" title="Переименовать"><svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>`;
     
-    let previewHtml = '<div class="book-preview">';
+    let previewHtml = '<div class="palette-preview">';
     const previewColors = p.colors.slice(0, 5);
-    if (previewColors.length === 0) previewHtml += '<div style="background:rgba(255,255,255,0.1)"></div>';
+    if (previewColors.length === 0) previewHtml += '<div style="background:var(--border-color)"></div>';
     else previewColors.forEach(c => { previewHtml += `<div style="background:${c.hex}"></div>`; });
     previewHtml += '</div>';
 
     el.innerHTML=`
-      ${renameBtn}
-      <div class="book-title">${escapeHtml(p.name)}</div>
-      <div class="book-decor"></div>
-      <div class="book-meta">${count} ${isArchiveView ? 'в забвении' : 'рецептов'}</div>
+      <div class="palette-header">
+        <div>
+          <div class="palette-title">${escapeHtml(p.name)}</div>
+          <div class="palette-meta">${count} ${isArchiveView ? 'в архиве' : 'рецептов'}</div>
+        </div>
+        ${renameBtn}
+      </div>
       ${previewHtml}
     `;
     bookShelf.appendChild(el);
   }
   list.appendChild(bookShelf);
   
-  // 2. Справочники соответствий (NCS / RAL)
+  // 2. Блок справочников
   if (virtualPalettes.length > 0 && !isArchiveView) {
     const dirSection = document.createElement('div');
     dirSection.className = 'directory-section';
-    dirSection.innerHTML = '<h2 class="directory-title">📖 Справочники соответствий</h2><div class="directory-cards" id="dirCards"></div>';
+    dirSection.innerHTML = '<h2 class="directory-title">Справочники соответствий</h2><div class="directory-cards" id="dirCards"></div>';
     list.appendChild(dirSection);
     
     const dirContainer = dirSection.querySelector('#dirCards');
@@ -702,15 +690,13 @@ function renderPalettes(){
       card.className = 'directory-card';
       card.onclick = () => { currentPaletteId = vp.id; $('search').value=''; visibleCount = PAGE_SIZE; render(); };
       
-      let icon = '📚';
-      if (vp.name.includes('NCS')) icon = '🎨';
-      if (vp.name.includes('RAL')) icon = '🏭';
-      
       card.innerHTML = `
-        <div class="directory-icon">${icon}</div>
+        <div class="directory-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 3L4 9v12h16V9l-8-6zm0 2.5L18 10v9H6v-9l6-4.5zM11 12h2v5h-2zm0-3h2v2h-2z"/></svg>
+        </div>
         <div class="directory-info">
           <h3>${escapeHtml(vp.name)}</h3>
-          <p>${activeColors.length} цветов для поиска соответствий</p>
+          <p>${activeColors.length} цветов</p>
         </div>
       `;
       dirContainer.appendChild(card);
@@ -725,8 +711,8 @@ function renderColors(){
   if(!p){ currentPaletteId=null; render(); return; }
   const q=$('search').value.trim().toLowerCase();
   
-  $('pageTitle').textContent = (isArchiveView ? 'Забвение: ' : '') + p.name;
-  $('crumbs').style.display='flex'; $('crumbs').innerHTML=`<a onclick="backToPalettes()">← К полке</a>`;
+  $('pageTitle').textContent = (isArchiveView ? 'Архив: ' : '') + p.name;
+  $('crumbs').style.display='flex'; $('crumbs').innerHTML=`<a onclick="backToPalettes()">Назад</a>`;
   
   let colors = p.colors.filter(c => !!c.isArchived === isArchiveView);
   currentItems = filterAndSort(colors, q, c => { const nd = parseColorName(c); return nd.main + ' ' + nd.sub; });
@@ -736,7 +722,6 @@ function renderColors(){
   const gridContainer = list.firstChild;
   const itemsToShow = currentItems.slice(0, visibleCount);
   
-  // Определяем, виртуальная ли это папка (справочник)
   const isVirtualView = p.isVirtual;
 
   const allActiveColorsCache = allPalettes.flatMap(pal => pal.isVirtual ? [] : pal.colors.filter(c => !c.isArchived));
@@ -760,13 +745,12 @@ function renderColors(){
 
   for(const c of itemsToShow){
     const el=document.createElement('div'); el.className='color-card clickable';
-    if (isVirtualView) el.classList.add('compact'); // Компактный вид для справочников
+    if (isVirtualView) el.classList.add('compact');
     
     el.onclick=(e) => { if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'svg') openColorModal(c.ID); };
     
     let formulasHtml = '';
     
-    // В справочниках не показываем длинные формулы, только кнопку
     if (!isVirtualView) {
       c.formulas.forEach((f, fIndex) => {
         const comps = f.components.map(x => `<b>${x.pigment}</b>: ${x.amount.toFixed(4)}`).join(' | ');
@@ -777,7 +761,7 @@ function renderColors(){
         const calcIdL = `vol_l_${c.ID}_${fIndex}`; const calcIdOz = `vol_oz_${c.ID}_${fIndex}`;
         
         formulasHtml += `
-          <div class="formula-block" style="${f.isOld ? 'opacity:0.7;' : ''}">
+          <div class="formula-block" style="${f.isOld ? 'opacity:0.6;' : ''}">
             <div class="formula-header">
               <span class="formula-base">База ${f.base || '?'} ${oldTag} ${matTag}</span>
               ${editFormulaBtn}
@@ -787,13 +771,13 @@ function renderColors(){
             </div>
             
             <div class="calc-row" onclick="event.stopPropagation()">
-              <span class="calc-label">Пересчет:</span>
+              <span>Пересчет:</span>
               <div class="calc-inputs">
                 <input type="number" class="calc-input" id="${calcIdL}" value="1" min="0.01" step="0.1" oninput="syncCalc('${c.ID}', ${fIndex}, this.value, 'L')">
-                <span style="font-family:var(--font-title); font-size:11px; color:#6b4a2a;">л</span>
-                <span style="color:#c4b5a0">/</span>
+                <span>л</span>
+                <span style="color:var(--border-color)">/</span>
                 <input type="number" class="calc-input" id="${calcIdOz}" value="33.81" min="0.01" step="0.1" oninput="syncCalc('${c.ID}', ${fIndex}, this.value, 'OZ')">
-                <span style="font-family:var(--font-title); font-size:11px; color:#6b4a2a;">oz</span>
+                <span>oz</span>
               </div>
             </div>
           </div>`;
@@ -802,11 +786,11 @@ function renderColors(){
           const similar = findSimilar(f, f.materialId);
           if (similar.length > 0) {
             const simItems = similar.map(s => `
-              <div class="similar-item" onclick="event.stopPropagation(); openColorModal('${s.color.ID}')" style="border-bottom:1px dashed rgba(139,100,50,0.3); padding:6px 0; cursor:pointer; display:flex; justify-content:space-between; font-family:var(--font-hand); font-size:16px; color:#4a3a2a;">
+              <div class="similar-item" onclick="event.stopPropagation(); openColorModal('${s.color.ID}')" style="border-bottom:1px solid var(--border-color); padding:8px 0; cursor:pointer; display:flex; justify-content:space-between; font-size:13px; color:var(--text-main);">
                 <span>${escapeHtml(s.color.EXTERNAL_NAME)}</span>
-                <span style="color:#1d3d2e; font-weight:bold;">±${s.diff.toFixed(1)}</span>
+                <span style="color:var(--color-lavender); font-weight:600;">±${s.diff.toFixed(1)}</span>
               </div>`).join('');
-            formulasHtml += `<div class="similar-box" style="background:rgba(29, 61, 46, 0.05); border:1px solid rgba(29,61,46,0.2); padding:10px; border-radius:4px; margin-top:8px;"><div class="similar-title" style="font-family:var(--font-title); font-size:12px; color:var(--book-emerald); font-weight:bold; margin-bottom:4px;">✨ Родственные чары</div>${simItems}</div>`;
+            formulasHtml += `<div style="background:rgba(207,207,234,0.05); border:1px solid var(--border-color); padding:12px; border-radius:12px; margin-top:8px;"><div style="font-size:12px; color:var(--color-lavender); font-weight:600; margin-bottom:4px;">Похожие рецепты</div>${simItems}</div>`;
           }
         }
       });
@@ -822,7 +806,6 @@ function renderColors(){
     let actionsHtml = '';
     
     if (isVirtualView) {
-      // Для справочника — только кнопка "Смотреть рецепт"
       actionsHtml = `<button class="view-recipe-btn" onclick="event.stopPropagation(); openColorModal('${c.ID}')">Посмотреть рецепт</button>`;
     } else if (!p.isVirtual) {
       const archiveBtn = c.isArchived 
@@ -831,7 +814,7 @@ function renderColors(){
       const deleteBtn = `<button class="danger" onclick="event.stopPropagation(); deleteSingleColor('${c.ID}')" title="Удалить"><svg class="icon" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>`;
       actionsHtml = `<div class="card-actions">${archiveBtn} ${deleteBtn}</div>`;
     } else { 
-      actionsHtml = `<div class="card-actions" style="justify-content:center; font-size:12px; color:#6b4a2a; font-family:var(--font-title);">Только просмотр</div>`; 
+      actionsHtml = `<div class="card-actions" style="justify-content:center; font-size:12px; color:var(--text-muted);">Только просмотр</div>`; 
     }
 
     el.innerHTML=`
@@ -866,7 +849,7 @@ function syncCalc(colorId, fIndex, value, sourceUnit) {
     const newComps = f.components.map(x => {
       const totalMl = x.amount * liters;
       const totalOz = totalMl / 29.5735;
-      return `<b>${x.pigment}</b>: ${totalMl.toFixed(4)} <span class="unit">мл</span> <span style="color:#7a6a5a;font-size:11px;">(${totalOz.toFixed(4)} oz)</span>`;
+      return `<b>${x.pigment}</b>: ${totalMl.toFixed(4)} <span class="unit">мл</span> <span style="color:var(--text-muted);font-size:11px;">(${totalOz.toFixed(4)} oz)</span>`;
     }).join(' | ');
     textEl.innerHTML = newComps;
   }
@@ -886,24 +869,24 @@ function openColorModal(colorId) {
     const oldTag = f.isOld ? `<span class="tag old">Старое</span>` : '';
     const matTag = f.materialName ? `<span class="tag material">${escapeHtml(f.materialName)}</span>` : '';
     formulasHtml += `
-      <div class="formula-block" style="margin-bottom: 12px; ${f.isOld ? 'opacity:0.7;' : ''}">
+      <div class="formula-block" style="margin-bottom: 12px; ${f.isOld ? 'opacity:0.6;' : ''}">
         <div class="formula-header"><span class="formula-base">База ${f.base || '?'} ${oldTag} ${matTag}</span></div>
         <div class="formula-content">${comps} <span class="unit">мл на 1 литр</span></div>
       </div>`;
   });
   
   $('modalBody').innerHTML = `
-    <div class="color-header" style="margin-bottom: 24px; border-bottom: 1px solid rgba(139, 100, 50, 0.3); padding-bottom: 16px;">
+    <div class="color-header" style="margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px;">
       <div class="color-swatch" style="background:${color.hex}; width: 72px; height: 72px;"></div>
       <div class="color-info">
-        <div class="color-name" style="font-size: 24px;">${escapeHtml(nameData.main)} ${ncsBadge}</div>
-        <div class="color-code" style="font-size: 18px;">${escapeHtml(nameData.sub)}</div>
-        <div style="font-size: 14px; color: #6b4a2a; margin-top: 8px; font-family:var(--font-title);">Раздел: <span style="color:#8c2a6e">${escapeHtml(sourcePalette.name)}</span></div>
+        <div class="color-name" style="font-size: 22px;">${escapeHtml(nameData.main)} ${ncsBadge}</div>
+        <div class="color-code" style="font-size: 16px;">${escapeHtml(nameData.sub)}</div>
+        <div style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">Раздел: <span style="color:var(--color-lavender)">${escapeHtml(sourcePalette.name)}</span></div>
       </div>
     </div>
     <div>
-      <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 18px; font-family:var(--font-title); color:#2b1a22;">Все рецепты</h3>
-      ${formulasHtml || '<div style="color: #6b4a2a; font-style: italic;">Нет формул</div>'}
+      <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 16px; font-weight: 600;">Все рецепты</h3>
+      ${formulasHtml || '<div style="color: var(--text-muted); font-style: italic;">Нет формул</div>'}
     </div>`;
   $('colorModal').classList.add('active');
 }
@@ -950,15 +933,15 @@ async function editFormula(colorId, formulaIndex) {
 }
 
 async function toggleColorArchive(colorId, archiveState) {
-  if (archiveState && !confirm('Отправить цвет в Забвение?')) return;
+  if (archiveState && !confirm('Отправить цвет в архив?')) return;
   for (const p of allPalettes) { const color = p.colors.find(c => String(c.ID) === String(colorId)); if (color) { color.isArchived = archiveState; await savePaletteToCloud(p); } }
-  toast(archiveState ? 'В Забвении' : 'Возвращен'); render();
+  toast(archiveState ? 'В архиве' : 'Возвращен'); render();
 }
 
 async function deleteSingleColor(colorId) {
-  if (!confirm('Стереть этот цвет НАВСЕГДА?')) return;
+  if (!confirm('Удалить этот цвет?')) return;
   for (const p of allPalettes) { const idx = p.colors.findIndex(c => String(c.ID) === String(colorId)); if (idx !== -1) { p.colors.splice(idx, 1); await savePaletteToCloud(p); } }
-  toast('Стерто'); render();
+  toast('Удалено'); render();
 }
 
 function backToPalettes(){ currentPaletteId=null; $('search').value=''; visibleCount = PAGE_SIZE; render(); }
