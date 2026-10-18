@@ -239,6 +239,10 @@
         <svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/></svg>
         Загрузить
       </button>
+      <button onclick="autoMatchFormulas()" id="recalcBtn" class="primary" style="display:none; background: #816C61; border-color: #816C61; color: #fff;">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        Рассчитать формулы
+      </button>
       <button onclick="toggleEditMode()" id="editModeBtn">
         <svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
         Правка
@@ -346,9 +350,6 @@ async function loadDataFromCloud() {
   allPalettes = data.map(row => row.data);
   allPalettes.sort((a,b)=> a.name.localeCompare(b.name));
   
-  // Автоматически запускаем поиск соответствий при загрузке (в фоне)
-  setTimeout(autoMatchFormulas, 500);
-  
   render();
 }
 
@@ -389,12 +390,6 @@ function filterAndSort(items, query, getNameFn) {
   }
   matched.sort((a, b) => { if (a.priority !== b.priority) return a.priority - b.priority; return a.index - b.index; });
   return matched.map(m => m.item);
-}
-
-function shouldFindSimilar(materialName) {
-  if (!materialName) return false;
-  const m = materialName.toLowerCase();
-  return m.includes('декор') || m.includes('высокопроч') || m.includes('интерьер');
 }
 
 function parseCSV(text) {
@@ -510,69 +505,91 @@ async function handleImport(e) {
 
 // ============ АВТОМАТИЧЕСКИЙ ПОИСК СООТВЕТСТВИЙ ============
 function autoMatchFormulas() {
-  // Собираем все цвета
-  const allColors = [];
-  allPalettes.forEach(p => {
-    p.colors.forEach(c => {
-      if (!c.isArchived) allColors.push({ ...c, paletteName: p.name });
+  $('recalcBtn').textContent = 'Считаем...';
+  
+  setTimeout(() => {
+    // Собираем все цвета
+    const allColors = [];
+    allPalettes.forEach(p => {
+      p.colors.forEach(c => {
+        if (!c.isArchived) allColors.push({ ...c, paletteName: p.name });
+      });
     });
-  });
 
-  // Ищем совпадения
-  allColors.forEach(c => {
-    if (!c.customMatches) c.customMatches = [];
-    
-    // 1. Ищем в названии код NCS (например, "NCS 1500N" или "ncs 0500N")
-    const searchStr = (c.EXTERNAL_NAME || '') + ' ' + (c.NAME || '') + ' ' + (c.NAME_RUS || '');
-    const ncsMatch = searchStr.match(/NCS\s+([A-Z0-9\s\-]+)/i);
-    
-    if (ncsMatch) {
-      const code = ncsMatch[0].trim().toUpperCase();
-      // Добавляем, если такого еще нет
-      if (!c.customMatches.some(m => m.code === code && m.type === 'auto_name')) {
-        c.customMatches.push({ code: code, type: 'auto_name' });
-      }
-    }
-
-    // 2. Ищем похожие формулы
-    const mainFormula = c.formulas.find(f => !f.isOld);
-    if (!mainFormula) return;
-
-    allColors.forEach(other => {
-      if (c.ID === other.ID) return; // Пропускаем себя
-      
-      const otherFormula = other.formulas.find(f => !f.isOld);
-      if (!otherFormula) return;
-
-      // Сравниваем только если совпадает материал и база
-      if (mainFormula.materialId !== otherFormula.materialId) return;
-      if (mainFormula.base !== otherFormula.base) return;
-
-      // Считаем разницу
-      let diff = 0;
-      const compMap = {};
-      mainFormula.components.forEach(x => compMap[x.pigment] = x.amount);
-      
-      otherFormula.components.forEach(x => {
-        if (compMap[x.pigment]) {
-          diff += Math.abs(compMap[x.pigment] - x.amount);
-          delete compMap[x.pigment]; // Убираем, чтобы не считать дважды
-        } else {
-          diff += x.amount;
+    // Очищаем старые авто-соответствия
+    allPalettes.forEach(p => {
+      p.colors.forEach(c => {
+        if (c.customMatches) {
+          c.customMatches = c.customMatches.filter(m => m.type !== 'auto_formula' && m.type !== 'auto_name');
         }
       });
-      Object.values(compMap).forEach(amt => diff += amt);
+    });
 
-      // Если разница меньше 1.0 (очень близкие формулы), добавляем в соответствия
-      if (diff < 1.0) {
-        if (!c.customMatches.some(m => m.code === other.EXTERNAL_NAME)) {
-          c.customMatches.push({ code: other.EXTERNAL_NAME, type: 'auto_formula', diff: diff });
+    // Ищем совпадения
+    allColors.forEach(c => {
+      if (!c.customMatches) c.customMatches = [];
+      
+      const cNameStr = (c.EXTERNAL_NAME || '') + ' ' + (c.NAME || '') + ' ' + (c.NAME_RUS || '');
+      
+      // 1. Ищем в названии код NCS
+      const ncsMatch = cNameStr.match(/NCS\s+([A-Z0-9\s\-]+)/i);
+      if (ncsMatch) {
+        const code = ncsMatch[0].trim().toUpperCase();
+        if (!c.customMatches.some(m => m.code === code)) {
+          c.customMatches.push({ code: code, type: 'auto_name' });
         }
       }
-    });
-  });
 
-  render(); // Перерисовываем
+      // 2. Ищем похожие формулы (только среди других цветов)
+      const mainFormula = c.formulas.find(f => !f.isOld);
+      if (!mainFormula) return;
+
+      allColors.forEach(other => {
+        // НЕ СРАВНИВАЕМ САМ С СОБОЙ
+        if (c.ID === other.ID) return; 
+        
+        const otherFormula = other.formulas.find(f => !f.isOld);
+        if (!otherFormula) return;
+        
+        // Пропускаем, если названия полностью совпадают (чтобы не дублировать)
+        if (c.EXTERNAL_NAME === other.EXTERNAL_NAME) return;
+
+        // Сравниваем только если совпадает материал и база
+        if (mainFormula.materialId !== otherFormula.materialId) return;
+        if (mainFormula.base !== otherFormula.base) return;
+
+        // Считаем разницу
+        let diff = 0;
+        const compMap = {};
+        mainFormula.components.forEach(x => compMap[x.pigment] = x.amount);
+        
+        otherFormula.components.forEach(x => {
+          if (compMap[x.pigment]) {
+            diff += Math.abs(compMap[x.pigment] - x.amount);
+            delete compMap[x.pigment];
+          } else {
+            diff += x.amount;
+          }
+        });
+        Object.values(compMap).forEach(amt => diff += amt);
+
+        // Если разница меньше 1.0, добавляем
+        if (diff < 1.0) {
+          const otherName = other.EXTERNAL_NAME || other.NAME || 'Цвет';
+          if (!c.customMatches.some(m => m.code === otherName)) {
+            c.customMatches.push({ code: otherName, type: 'auto_formula', diff: diff });
+          }
+        }
+      });
+    });
+
+    // Сохраняем обновления в облако (в фоне)
+    allPalettes.forEach(p => { savePaletteToCloud(p); });
+    
+    $('recalcBtn').innerHTML = `<svg class="icon" viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg> Рассчитать формулы`;
+    render();
+    toast('Соответствия обновлены');
+  }, 100);
 }
 
 // ============ СОСТОЯНИЕ И РЕНДЕР ============
@@ -586,6 +603,7 @@ function toggleEditMode() {
     isEditMode = false; 
     $('editModeBtn').classList.remove('primary'); 
     $('burnBtn').style.display = 'none'; 
+    $('recalcBtn').style.display = 'none';
     toast('Режим чтения'); 
     render(); 
     return; 
@@ -595,6 +613,7 @@ function toggleEditMode() {
     isEditMode = true; 
     $('editModeBtn').classList.add('primary'); 
     $('burnBtn').style.display = 'inline-flex'; 
+    $('recalcBtn').style.display = 'inline-flex';
     toast('Режим правки'); 
     render(); 
   }
@@ -765,7 +784,18 @@ function renderPalettes(){
       
       // Правая колонка со списком цветов
       let colorsCol = `<div class="match-colors-col">`;
+      
+      // Убираем дубликаты цветов в одной строке
+      const uniqueColors = [];
+      const seenIds = new Set();
       colors.forEach(c => {
+        if (!seenIds.has(c.ID)) {
+          seenIds.add(c.ID);
+          uniqueColors.push(c);
+        }
+      });
+
+      uniqueColors.forEach(c => {
         const nameData = parseColorName(c);
         colorsCol += `
           <div class="match-color-chip" onclick="openColorModal('${c.ID}')">
@@ -784,15 +814,10 @@ function renderPalettes(){
   updateLoadMoreBtn(itemsToShow.length, currentItems.length);
 }
 
-// Функция для ручного создания кода (Кнопка "+ Добавить код" на главном экране)
 function promptNewMatchCode() {
   const code = prompt('Введите новый код соответствия (например, NCS 1500N):');
   if (!code || !code.trim()) return;
   const cleanCode = code.trim().toUpperCase();
-  
-  // Создаем пустую строку для этого кода (просто визуально, чтобы его можно было заполнить)
-  // Но у нас нет пустых цветов, поэтому нужно добавить код в какой-то цвет.
-  // Мы просто сообщим пользователю, что нужно зайти в цвет и добавить код.
   alert('Код создан! Теперь зайдите в любой цвет, выберите "Правка" и добавьте в него этот код.');
 }
 
