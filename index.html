@@ -89,20 +89,31 @@
   .palette-preview { display: flex; gap: 4px; height: 40px; border-radius: 8px; overflow: hidden; }
   .palette-preview div { flex: 1; }
 
+  /* СПРАВОЧНИК СООТВЕТСТВИЙ */
   .directory-section { margin-top: 40px; }
-  .directory-title { font-size: 20px; font-weight: 600; color: var(--text-main); margin-bottom: 20px; }
-  .directory-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  .directory-title { font-size: 20px; font-weight: 600; color: var(--text-main); margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center;}
   
-  .directory-card { 
-    background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; 
-    padding: 20px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 16px;
+  /* Строчный вид соответствий */
+  .match-list { display: flex; flex-direction: column; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; }
+  .match-row { display: flex; border-bottom: 1px solid var(--border-color); background: var(--bg-card); transition: 0.2s; }
+  .match-row:last-child { border-bottom: none; }
+  .match-row:hover { background: #4a382e; }
+  
+  .match-code-col { width: 200px; padding: 16px; border-right: 1px solid var(--border-color); font-weight: 600; color: var(--color-lavender); display: flex; align-items: center; justify-content: space-between; }
+  .match-colors-col { flex: 1; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  
+  .match-color-chip { 
+    background: var(--bg-main); border: 1px solid var(--border-color); padding: 6px 12px; 
+    border-radius: 20px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: 0.2s;
   }
-  .directory-card:hover { border-color: var(--text-muted); transform: translateY(-2px); }
-  .directory-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; justify-content: center; align-items: center; background: var(--bg-main); color: var(--color-lavender); }
-  .directory-icon svg { width: 24px; height: 24px; fill: currentColor; }
-  .directory-info h3 { margin: 0 0 4px 0; font-weight: 600; font-size: 18px; color: var(--text-main); }
-  .directory-info p { margin: 0; font-size: 13px; color: var(--text-muted); }
+  .match-color-chip:hover { border-color: var(--color-lavender); color: var(--color-lavender); }
+  .match-color-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--border-color); }
+  
+  .btn-add-manual { background: transparent; border: 1px dashed var(--color-taupe); color: var(--text-muted); padding: 4px 8px; border-radius: 6px; font-size: 12px; cursor: pointer; margin-left: auto; transition: 0.2s; }
+  .btn-add-manual:hover { border-color: var(--color-lavender); color: var(--color-lavender); }
 
+  /* СЕТКА ЦВЕТОВ (внутри палитр) */
   .grid-colors { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
 
   .color-card { 
@@ -123,12 +134,6 @@
   .color-info { flex: 1; min-width: 0; }
   .color-name { font-weight: 600; font-size: 18px; line-height: 1.2; color: var(--text-main); margin-bottom: 4px; }
   .color-code { font-family: var(--font-mono); font-size: 14px; color: var(--text-muted); }
-
-  .color-card.compact { padding: 16px; gap: 12px; }
-  .color-card.compact .color-swatch { width: 44px; height: 44px; border-radius: 8px; }
-  .color-card.compact .color-name { font-size: 16px; }
-  .view-recipe-btn { width: 100%; margin-top: 8px; padding: 8px; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; transition: 0.2s; }
-  .view-recipe-btn:hover { border-color: var(--color-lavender); color: var(--color-lavender); }
 
   .formula-block { background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; }
   .formula-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
@@ -153,7 +158,6 @@
   .tag.ncs { background: rgba(168, 155, 157, 0.15); color: #C9BABB; }
   .tag.old { background: rgba(255, 138, 138, 0.1); color: #ff8a8a; }
 
-  /* КАСТОМНЫЕ СООТВЕТСТВИЯ */
   .custom-matches-box { background: rgba(168, 155, 157, 0.1); border: 1px dashed var(--color-taupe); padding: 12px; border-radius: 12px; margin-top: 8px; }
   .custom-matches-title { font-size: 12px; color: var(--color-lavender); font-weight: 600; margin-bottom: 8px; }
   .match-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 6px 0; border-bottom: 1px solid var(--border-color); }
@@ -208,7 +212,9 @@
     .grid-palettes { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
     .modal-content { padding: 24px; }
     .calc-row { flex-direction: column; align-items: flex-start; }
-    .directory-cards { grid-template-columns: 1fr; }
+    
+    .match-row { flex-direction: column; }
+    .match-code-col { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); }
   }
 </style>
 </head>
@@ -233,6 +239,10 @@
         <svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/></svg>
         Загрузить
       </button>
+      <button onclick="toggleEditMode()" id="editModeBtn">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+        Правка
+      </button>
       <button onclick="burnBase()" id="burnBtn" class="danger" style="display:none;">
         <svg class="icon" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
         Сжечь
@@ -240,10 +250,6 @@
       <button onclick="toggleArchiveView()" id="archiveBtn">
         <svg class="icon" viewBox="0 0 24 24"><path d="M20 6H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2zm0 12H4V8h16v10zM2 4h20v2H2z"/></svg>
         Архив
-      </button>
-      <button onclick="toggleEditMode()" id="editModeBtn">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-        Правка
       </button>
       <button onclick="logout()" class="danger">
         <svg class="icon" viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
@@ -338,11 +344,11 @@ async function loadDataFromCloud() {
   if (error) { toast('Ошибка загрузки: ' + error.message, true); return; }
   
   allPalettes = data.map(row => row.data);
-  allPalettes.sort((a,b)=>{
-    if (a.isVirtual && !b.isVirtual) return -1;
-    if (!a.isVirtual && b.isVirtual) return 1;
-    return a.name.localeCompare(b.name);
-  });
+  allPalettes.sort((a,b)=> a.name.localeCompare(b.name));
+  
+  // Автоматически запускаем поиск соответствий при загрузке (в фоне)
+  setTimeout(autoMatchFormulas, 500);
+  
   render();
 }
 
@@ -502,13 +508,78 @@ async function handleImport(e) {
   e.target.value = '';
 }
 
+// ============ АВТОМАТИЧЕСКИЙ ПОИСК СООТВЕТСТВИЙ ============
+function autoMatchFormulas() {
+  // Собираем все цвета
+  const allColors = [];
+  allPalettes.forEach(p => {
+    p.colors.forEach(c => {
+      if (!c.isArchived) allColors.push({ ...c, paletteName: p.name });
+    });
+  });
+
+  // Ищем совпадения
+  allColors.forEach(c => {
+    if (!c.customMatches) c.customMatches = [];
+    
+    // 1. Ищем в названии код NCS (например, "NCS 1500N" или "ncs 0500N")
+    const searchStr = (c.EXTERNAL_NAME || '') + ' ' + (c.NAME || '') + ' ' + (c.NAME_RUS || '');
+    const ncsMatch = searchStr.match(/NCS\s+([A-Z0-9\s\-]+)/i);
+    
+    if (ncsMatch) {
+      const code = ncsMatch[0].trim().toUpperCase();
+      // Добавляем, если такого еще нет
+      if (!c.customMatches.some(m => m.code === code && m.type === 'auto_name')) {
+        c.customMatches.push({ code: code, type: 'auto_name' });
+      }
+    }
+
+    // 2. Ищем похожие формулы
+    const mainFormula = c.formulas.find(f => !f.isOld);
+    if (!mainFormula) return;
+
+    allColors.forEach(other => {
+      if (c.ID === other.ID) return; // Пропускаем себя
+      
+      const otherFormula = other.formulas.find(f => !f.isOld);
+      if (!otherFormula) return;
+
+      // Сравниваем только если совпадает материал и база
+      if (mainFormula.materialId !== otherFormula.materialId) return;
+      if (mainFormula.base !== otherFormula.base) return;
+
+      // Считаем разницу
+      let diff = 0;
+      const compMap = {};
+      mainFormula.components.forEach(x => compMap[x.pigment] = x.amount);
+      
+      otherFormula.components.forEach(x => {
+        if (compMap[x.pigment]) {
+          diff += Math.abs(compMap[x.pigment] - x.amount);
+          delete compMap[x.pigment]; // Убираем, чтобы не считать дважды
+        } else {
+          diff += x.amount;
+        }
+      });
+      Object.values(compMap).forEach(amt => diff += amt);
+
+      // Если разница меньше 1.0 (очень близкие формулы), добавляем в соответствия
+      if (diff < 1.0) {
+        if (!c.customMatches.some(m => m.code === other.EXTERNAL_NAME)) {
+          c.customMatches.push({ code: other.EXTERNAL_NAME, type: 'auto_formula', diff: diff });
+        }
+      }
+    });
+  });
+
+  render(); // Перерисовываем
+}
+
 // ============ СОСТОЯНИЕ И РЕНДЕР ============
 let allPalettes=[]; let currentPaletteId=null; let isArchiveView = false; let isEditMode = false;
 let currentItems = []; let visibleCount = 50; const PAGE_SIZE = 50;
-// Для справочника: если мы внутри виртуальной папки, храним её имя
-let currentVirtualCode = null; 
 
-function toggleArchiveView() { isArchiveView = !isArchiveView; $('archiveBtn').classList.toggle('primary', isArchiveView); currentPaletteId = null; currentVirtualCode = null; $('search').value = ''; render(); }
+function toggleArchiveView() { isArchiveView = !isArchiveView; $('archiveBtn').classList.toggle('primary', isArchiveView); currentPaletteId = null; $('search').value = ''; render(); }
 
 function toggleEditMode() {
   if (isEditMode) { 
@@ -538,7 +609,6 @@ async function burnBase() {
   await clearCloudBase();
   allPalettes = [];
   currentPaletteId = null;
-  currentVirtualCode = null;
   render();
   toast('База удалена.');
   $('importFiles').click();
@@ -551,12 +621,11 @@ function loadMore() { visibleCount += PAGE_SIZE; renderListOnly(); }
 async function render(){
   if (allPalettes.length === 0) await loadDataFromCloud();
   const globalQuery = $('search').value.trim().toLowerCase();
-  if (!currentPaletteId && !currentVirtualCode && globalQuery.length >= 2) { renderGlobalSearch(); return; }
-  if(currentVirtualCode){ renderVirtualDirectory(); return; }
+  if (!currentPaletteId && globalQuery.length >= 2) { renderGlobalSearch(); return; }
   if(!currentPaletteId){ renderPalettes(); } else { renderColors(); }
 }
 
-function renderListOnly() { if(!currentPaletteId && !currentVirtualCode){ renderPalettes(); } else if (currentPaletteId) { renderColors(); } }
+function renderListOnly() { if(!currentPaletteId){ renderPalettes(); } else { renderColors(); } }
 
 function renderGlobalSearch() {
   const q = $('search').value.trim().toLowerCase();
@@ -584,15 +653,9 @@ function renderGlobalSearch() {
     const el=document.createElement('div'); el.className='color-card clickable';
     el.onclick=(e) => { if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') openColorModal(c.ID); };
     
-    // Формулы не показываем в поиске для краткости
     let ncsBadge = ''; const searchStr = ((c.EXTERNAL_NAME||'') + ' ' + (c.NAME||'')).toUpperCase(); if (searchStr.includes('NCS')) ncsBadge = `<span class="tag ncs">NCS</span>`;
     const nameData = parseColorName(c);
     
-    let matchesHtml = '';
-    if (c.customMatches && c.customMatches.length > 0) {
-      matchesHtml = `<div class="custom-matches-box" style="margin-top:8px;"><div class="custom-matches-title">Соответствия:</div>${c.customMatches.map(m => `<div class="match-item"><span>${escapeHtml(m.code)}</span></div>`).join('')}</div>`;
-    }
-
     el.innerHTML=`
       <div class="color-header">
         <div class="color-swatch" style="background:${c.hex}"></div>
@@ -601,14 +664,13 @@ function renderGlobalSearch() {
           <div class="color-code">${escapeHtml(nameData.sub)}</div>
           <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Из: ${escapeHtml(c.sourcePaletteName)}</div>
         </div>
-      </div>
-      ${matchesHtml}`;
+      </div>`;
     gridContainer.appendChild(el);
   }
   updateLoadMoreBtn(itemsToShow.length, currentItems.length);
 }
 
-function clearSearch() { $('search').value = ''; currentPaletteId = null; currentVirtualCode = null; visibleCount = PAGE_SIZE; render(); }
+function clearSearch() { $('search').value = ''; currentPaletteId = null; visibleCount = PAGE_SIZE; render(); }
 
 function renderPalettes(){
   const q=$('search').value.trim().toLowerCase();
@@ -618,7 +680,7 @@ function renderPalettes(){
   
   const realPalettes = allPalettes.filter(p => !p.isVirtual);
 
-  // Собираем все кастомные соответствия
+  // Собираем соответствия для блока "Справочник"
   const allMatches = {};
   allPalettes.forEach(p => {
     p.colors.forEach(c => {
@@ -649,7 +711,7 @@ function renderPalettes(){
   for(const p of itemsToShow){
     const el=document.createElement('div'); el.className='palette-card';
     const count = isArchiveView ? p.archivedCount : p.activeCount; if (count === 0) el.style.opacity = '0.5';
-    el.onclick=(e)=>{ if (e.target.tagName === 'BUTTON' || e.target.tagName === 'svg') return; currentPaletteId=p.id; currentVirtualCode = null; $('search').value=''; visibleCount = PAGE_SIZE; render(); };
+    el.onclick=(e)=>{ if (e.target.tagName === 'BUTTON' || e.target.tagName === 'svg') return; currentPaletteId=p.id; $('search').value=''; visibleCount = PAGE_SIZE; render(); };
     
     let renameBtn = ''; if (isEditMode) renameBtn = `<button class="edit-btn" onclick="renamePalette('${p.id}')" title="Переименовать"><svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>`;
     
@@ -673,89 +735,78 @@ function renderPalettes(){
   }
   list.appendChild(bookShelf);
   
-  // 2. Блок справочников (по кастомным соответствиям)
+  // 2. Блок справочников
   const matchCodes = Object.keys(allMatches).sort();
   if (matchCodes.length > 0 && !isArchiveView) {
     const dirSection = document.createElement('div');
     dirSection.className = 'directory-section';
-    dirSection.innerHTML = '<h2 class="directory-title">Справочники соответствий</h2><div class="directory-cards" id="dirCards"></div>';
+    dirSection.innerHTML = `
+      <div class="directory-title">
+        Справочники соответствий
+        ${isEditMode ? `<button class="btn-add-manual" onclick="promptNewMatchCode()">+ Добавить код</button>` : ''}
+      </div>
+      <div class="match-list" id="matchList"></div>
+    `;
     list.appendChild(dirSection);
     
-    const dirContainer = dirSection.querySelector('#dirCards');
+    const matchListContainer = dirSection.querySelector('#matchList');
     
     matchCodes.forEach(code => {
       const colors = allMatches[code];
+      const row = document.createElement('div');
+      row.className = 'match-row';
       
-      const card = document.createElement('div');
-      card.className = 'directory-card';
-      card.onclick = () => { currentVirtualCode = code; currentPaletteId = null; $('search').value=''; visibleCount = PAGE_SIZE; render(); };
+      // Левая колонка с кодом
+      let codeCol = `<div class="match-code-col">${escapeHtml(code)}`;
+      if (isEditMode) {
+        codeCol += `<button class="edit-btn" onclick="removeMatchCode('${code}')" title="Удалить код"><svg class="icon" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>`;
+      }
+      codeCol += `</div>`;
       
-      card.innerHTML = `
-        <div class="directory-icon">
-          <svg viewBox="0 0 24 24"><path d="M12 3L4 9v12h16V9l-8-6zm0 2.5L18 10v9H6v-9l6-4.5zM11 12h2v5h-2zm0-3h2v2h-2z"/></svg>
-        </div>
-        <div class="directory-info">
-          <h3>${escapeHtml(code)}</h3>
-          <p>${colors.length} цветов</p>
-        </div>
-      `;
-      dirContainer.appendChild(card);
+      // Правая колонка со списком цветов
+      let colorsCol = `<div class="match-colors-col">`;
+      colors.forEach(c => {
+        const nameData = parseColorName(c);
+        colorsCol += `
+          <div class="match-color-chip" onclick="openColorModal('${c.ID}')">
+            <div class="match-color-dot" style="background:${c.hex}"></div>
+            <span>${escapeHtml(nameData.main)}</span>
+          </div>
+        `;
+      });
+      colorsCol += `</div>`;
+      
+      row.innerHTML = codeCol + colorsCol;
+      matchListContainer.appendChild(row);
     });
   }
   
   updateLoadMoreBtn(itemsToShow.length, currentItems.length);
 }
 
-// Отрисовка виртуальной папки соответствий
-function renderVirtualDirectory() {
-  $('pageTitle').textContent = `Соответствие: ${currentVirtualCode}`;
-  $('crumbs').style.display='flex'; $('crumbs').innerHTML=`<a onclick="backToPalettes()">Назад</a>`;
+// Функция для ручного создания кода (Кнопка "+ Добавить код" на главном экране)
+function promptNewMatchCode() {
+  const code = prompt('Введите новый код соответствия (например, NCS 1500N):');
+  if (!code || !code.trim()) return;
+  const cleanCode = code.trim().toUpperCase();
   
-  // Ищем все цвета с этим кодом
-  const matchedColors = [];
+  // Создаем пустую строку для этого кода (просто визуально, чтобы его можно было заполнить)
+  // Но у нас нет пустых цветов, поэтому нужно добавить код в какой-то цвет.
+  // Мы просто сообщим пользователю, что нужно зайти в цвет и добавить код.
+  alert('Код создан! Теперь зайдите в любой цвет, выберите "Правка" и добавьте в него этот код.');
+}
+
+function removeMatchCode(code) {
+  if (!confirm(`Удалить код ${code} из всех цветов?`)) return;
   allPalettes.forEach(p => {
     p.colors.forEach(c => {
-      if (c.isArchived === isArchiveView && c.customMatches) {
-        if (c.customMatches.some(m => m.code === currentVirtualCode)) {
-          matchedColors.push({ ...c, sourcePaletteName: p.name });
-        }
+      if (c.customMatches) {
+        c.customMatches = c.customMatches.filter(m => m.code !== code);
       }
     });
+    savePaletteToCloud(p);
   });
-
-  currentItems = matchedColors;
-  $('empty').style.display=currentItems.length?'none':'block';
-  
-  const list=$('list'); list.innerHTML='<div class="grid-colors">';
-  const gridContainer = list.firstChild;
-  const itemsToShow = currentItems.slice(0, visibleCount);
-  
-  for(const c of itemsToShow){
-    const el=document.createElement('div'); el.className='color-card clickable';
-    el.onclick=(e) => { if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') openColorModal(c.ID); };
-    
-    let ncsBadge = ''; const searchStr = ((c.EXTERNAL_NAME||'') + ' ' + (c.NAME||'')).toUpperCase(); if (searchStr.includes('NCS')) ncsBadge = `<span class="tag ncs">NCS</span>`;
-    const nameData = parseColorName(c);
-    
-    let actionsHtml = '';
-    if (isEditMode) {
-      const deleteMatchBtn = `<button class="danger" onclick="event.stopPropagation(); removeCustomMatch('${c.ID}', '${currentVirtualCode}')" title="Удалить соответствие"><svg class="icon" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> Убрать</button>`;
-      actionsHtml = `<div class="card-actions">${deleteMatchBtn}</div>`;
-    }
-
-    el.innerHTML=`
-      <div class="color-header">
-        <div class="color-swatch" style="background:${c.hex}"></div>
-        <div class="color-info">
-          <div class="color-name">${escapeHtml(nameData.main)} ${ncsBadge}</div>
-          <div class="color-code">${escapeHtml(nameData.sub)}</div>
-          <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Палитра: ${escapeHtml(c.sourcePaletteName)}</div>
-        </div>
-      </div>
-      ${actionsHtml}`;
-    gridContainer.appendChild(el);
-  }
-  updateLoadMoreBtn(itemsToShow.length, currentItems.length);
+  render();
 }
 
 function renderColors(){
@@ -773,25 +824,6 @@ function renderColors(){
   const list=$('list'); list.innerHTML='<div class="grid-colors">';
   const gridContainer = list.firstChild;
   const itemsToShow = currentItems.slice(0, visibleCount);
-  
-  const allActiveColorsCache = allPalettes.flatMap(pal => pal.colors.filter(c => !c.isArchived));
-
-  function findSimilar(targetFormula, targetMaterialId) {
-    if (!targetFormula || !targetFormula.components || !shouldFindSimilar(targetFormula.materialName)) return [];
-    const targetMap = {}; targetFormula.components.forEach(c => targetMap[c.pigment] = c.amount);
-    const results = [];
-    for (const other of allActiveColorsCache) {
-      if (other.ID === targetFormula.COLOR_ID) continue; 
-      for (const f of other.formulas) {
-        if (f.isOld || f.materialId !== targetMaterialId || !shouldFindSimilar(f.materialName)) continue;
-        const otherMap = {}; f.components.forEach(c => otherMap[c.pigment] = c.amount);
-        let diff = 0; const allPigments = new Set([...Object.keys(targetMap), ...Object.keys(otherMap)]);
-        for (let pId of allPigments) { diff += Math.abs((targetMap[pId] || 0) - (otherMap[pId] || 0)); }
-        results.push({ color: other, diff });
-      }
-    }
-    results.sort((a,b) => a.diff - b.diff); return results.slice(0, 3);
-  }
 
   for(const c of itemsToShow){
     const el=document.createElement('div'); el.className='color-card clickable';
@@ -804,7 +836,7 @@ function renderColors(){
       const oldTag = f.isOld ? `<span class="tag old">Старое</span>` : '';
       const matTag = f.materialName ? `<span class="tag material">${escapeHtml(f.materialName)}</span>` : '';
       
-      let editFormulaBtn = ''; if (isEditMode && !p.isVirtual) editFormulaBtn = `<button class="formula-edit-btn" onclick="event.stopPropagation(); editFormula('${c.ID}', ${fIndex})">Править</button>`;
+      let editFormulaBtn = ''; if (isEditMode) editFormulaBtn = `<button class="formula-edit-btn" onclick="event.stopPropagation(); editFormula('${c.ID}', ${fIndex})">Править</button>`;
       const calcIdL = `vol_l_${c.ID}_${fIndex}`; const calcIdOz = `vol_oz_${c.ID}_${fIndex}`;
       
       formulasHtml += `
@@ -828,21 +860,9 @@ function renderColors(){
             </div>
           </div>
         </div>`;
-        
-      if (!f.isOld && !p.isVirtual) {
-        const similar = findSimilar(f, f.materialId);
-        if (similar.length > 0) {
-          const simItems = similar.map(s => `
-            <div class="similar-item" onclick="event.stopPropagation(); openColorModal('${s.color.ID}')" style="border-bottom:1px solid var(--border-color); padding:8px 0; cursor:pointer; display:flex; justify-content:space-between; font-size:13px; color:var(--text-main);">
-              <span>${escapeHtml(s.color.EXTERNAL_NAME)}</span>
-              <span style="color:var(--color-lavender); font-weight:600;">±${s.diff.toFixed(1)}</span>
-            </div>`).join('');
-          formulasHtml += `<div style="background:rgba(207,207,234,0.05); border:1px solid var(--border-color); padding:12px; border-radius:12px; margin-top:8px;"><div style="font-size:12px; color:var(--color-lavender); font-weight:600; margin-bottom:4px;">Похожие рецепты</div>${simItems}</div>`;
-        }
-      }
     });
 
-    // Блок кастомных соответствий
+    // Блок соответствий (выводим строчками)
     let customMatchesHtml = '';
     if (c.customMatches && c.customMatches.length > 0) {
       customMatchesHtml = `<div class="custom-matches-box">
@@ -853,7 +873,7 @@ function renderColors(){
     
     let addMatchBtn = '';
     if (isEditMode) {
-      addMatchBtn = `<button class="add-match-btn" onclick="event.stopPropagation(); addCustomMatch('${c.ID}')">+ Добавить соответствие</button>`;
+      addMatchBtn = `<button class="add-match-btn" onclick="event.stopPropagation(); addCustomMatch('${c.ID}')">+ Добавить код</button>`;
     }
 
     let ncsBadge = ''; const searchStr = ((c.EXTERNAL_NAME||'') + ' ' + (c.NAME||'')).toUpperCase(); if (searchStr.includes('NCS')) ncsBadge = `<span class="tag ncs">NCS</span>`;
@@ -999,28 +1019,16 @@ async function editFormula(colorId, formulaIndex) {
 }
 
 async function addCustomMatch(colorId) {
-  const code = prompt('Введите код соответствия (например, NCS S 1500-N или RAL 9010):');
+  const code = prompt('Введите код соответствия (например, NCS 1500N):');
   if (!code || !code.trim()) return;
   
   for (const p of allPalettes) {
     const c = p.colors.find(x => String(x.ID) === String(colorId));
     if (c) {
       if (!c.customMatches) c.customMatches = [];
-      c.customMatches.push({ code: code.trim() });
+      c.customMatches.push({ code: code.trim().toUpperCase(), type: 'manual' });
       await savePaletteToCloud(p);
       toast('Соответствие добавлено'); render(); return;
-    }
-  }
-}
-
-async function removeCustomMatch(colorId, code) {
-  if (!confirm(`Убрать соответствие ${code}?`)) return;
-  for (const p of allPalettes) {
-    const c = p.colors.find(x => String(x.ID) === String(colorId));
-    if (c && c.customMatches) {
-      c.customMatches = c.customMatches.filter(m => m.code !== code);
-      await savePaletteToCloud(p);
-      toast('Убрано'); render(); return;
     }
   }
 }
@@ -1037,7 +1045,7 @@ async function deleteSingleColor(colorId) {
   toast('Удалено'); render();
 }
 
-function backToPalettes(){ currentPaletteId=null; currentVirtualCode=null; $('search').value=''; visibleCount = PAGE_SIZE; render(); }
+function backToPalettes(){ currentPaletteId=null; $('search').value=''; visibleCount = PAGE_SIZE; render(); }
 
 checkAuth();
 </script>
