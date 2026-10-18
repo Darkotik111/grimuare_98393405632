@@ -6,146 +6,282 @@
 <title>Гримуар повелительниц подземелья</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&display=swap');
+  /* ПОДКЛЮЧАЕМ ГОТИЧЕСКИЕ И РУКОПИСНЫЕ ШРИФТЫ */
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Cinzel:wght@600;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
 
   :root {
-    --bg: #0a080b; --bg-texture: radial-gradient(circle at 50% 0%, #1a141c 0%, #0a080b 70%);
-    --card: #141116; --card2: #1c161d; --text: #e2d5c4; --muted: #8a7f75;
-    --accent: #d4af37; --accent-hover: #ffd700; --danger: #a73a3a; --ok: #4a9c6c;
-    --border: #3a2e28; --warn: #c97b2a;
-    --font-serif: 'Cormorant Garamond', Georgia, serif;
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    /* Палитра с картинки: глубокий фиолетовый, малиновый, изумрудный, серый */
+    --bg-dark: #1a0b1c;
+    --bg-wall: #2a1233;
+    --book-purple: #3d1a40;
+    --book-emerald: #1d3d2e;
+    --book-magenta: #8c2a6e;
+    --book-grey: #4a3e51;
+    
+    --text-ink: #2b1a22;
+    --text-gold: #e6b95c;
+    --text-light: #e2d5e8;
+    --text-muted: #9a7e9e;
+    
+    --border-gold: #b88a44;
+    --border-dark: #110614;
+    
+    --font-title: 'Cinzel', Georgia, serif;
+    --font-hand: 'Caveat', cursive, Georgia, serif;
+    --font-body: 'EB Garamond', Georgia, serif;
+    --font-mono: ui-monospace, 'Courier New', monospace;
   }
+
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { margin: 0; font-family: var(--font-sans); background: var(--bg-texture); color: var(--text); min-height: 100vh; padding: 16px; padding-bottom: 90px; background-attachment: fixed; }
+  body { 
+    margin: 0; font-family: var(--font-body); background-color: var(--bg-dark); 
+    background-image: radial-gradient(circle at center, var(--bg-wall) 0%, var(--bg-dark) 100%);
+    color: var(--text-light); min-height: 100vh; padding: 20px; padding-bottom: 90px; 
+    background-attachment: fixed; font-size: 16px;
+  }
   
-  #authScreen { position: fixed; inset: 0; background: var(--bg-texture); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
-  .auth-box { background: var(--card); border: 1px solid var(--accent); padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 0 40px rgba(212,175,55,0.15); }
-  .auth-box h2 { font-family: var(--font-serif); color: var(--accent); font-size: 24px; margin-top: 0; margin-bottom: 20px; }
-  .auth-box input { width: 100%; padding: 12px; margin-bottom: 15px; background: var(--card2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: var(--font-sans); }
-  .auth-box input:focus { outline: none; border-color: var(--accent); }
-  .auth-box button { width: 100%; padding: 12px; margin-bottom: 10px; }
-  .auth-error { color: var(--danger); font-size: 13px; margin-bottom: 10px; display: none; }
+  /* ЭКРАН АВТОРИЗАЦИИ */
+  #authScreen { position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .auth-box { background: var(--book-purple); border: 2px solid var(--border-gold); padding: 40px; border-radius: 4px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5); position: relative;}
+  .auth-box::before { content: ''; position: absolute; inset: 4px; border: 1px solid rgba(184, 138, 68, 0.3); pointer-events: none; }
+  .auth-box h2 { font-family: var(--font-title); color: var(--text-gold); font-size: 28px; margin-top: 0; margin-bottom: 30px; text-shadow: 0 2px 4px #000; }
+  .auth-box input { width: 100%; padding: 12px; margin-bottom: 16px; background: #1a0b1c; border: 1px solid var(--border-gold); color: var(--text-light); border-radius: 2px; font-family: var(--font-body); font-size: 16px; }
+  .auth-box input:focus { outline: none; border-color: #e6b95c; box-shadow: 0 0 8px rgba(230, 185, 92, 0.3); }
+  .auth-box button { width: 100%; padding: 14px; margin-bottom: 12px; font-size: 16px; }
+  .auth-error { color: #ff8a8a; font-size: 14px; margin-bottom: 15px; display: none; }
 
-  header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
-  h1 { font-family: var(--font-serif); font-size: 24px; margin: 0; font-weight: 700; color: var(--accent); text-shadow: 0 0 10px rgba(212, 175, 55, 0.3); letter-spacing: 1px; }
-  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
-  button { background: transparent; color: var(--text); border: 1px solid var(--border); padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: .2s; font-weight: 600; font-family: var(--font-serif); letter-spacing: 0.5px; }
-  button:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 8px rgba(212,175,55,0.2); }
-  button.primary { background: rgba(212, 175, 55, 0.1); border-color: var(--accent); color: var(--accent); }
-  button.primary:hover { background: rgba(212, 175, 55, 0.2); }
-  button.warn { border-color: #5c3a1e; color: #e8a862; background: rgba(92, 58, 30, 0.2); }
-  button.warn:hover { border-color: var(--warn); color: #ffc285; box-shadow: 0 0 8px rgba(201,123,42,0.2); }
-  button.danger { border-color: #5c1e1e; color: #e86262; background: rgba(92, 30, 30, 0.2); }
-  button.danger:hover { border-color: var(--danger); color: #ff8585; box-shadow: 0 0 8px rgba(167,58,58,0.2); }
+  /* ШАПКА */
+  header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 30px; flex-wrap: wrap; border-bottom: 2px solid var(--border-gold); padding-bottom: 20px; }
+  h1 { font-family: var(--font-title); font-size: 28px; margin: 0; font-weight: 700; color: var(--text-gold); letter-spacing: 1px; text-shadow: 0 2px 4px #000; }
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; }
   
-  .edit-btn { padding: 2px 6px; font-size: 12px; background: transparent; border: 1px solid transparent; color: var(--muted); cursor: pointer; border-radius: 4px; margin-left: 6px;}
-  .edit-btn:hover { color: var(--accent); border-color: var(--border); background: rgba(212,175,55,0.1);}
-  .formula-edit-btn { float: right; background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.3); color: var(--accent); font-size: 10px; padding: 2px 6px; border-radius: 4px; cursor: pointer;}
-  .formula-edit-btn:hover { background: rgba(212,175,55,0.2); }
+  /* КНОПКИ (В стиле металла / гравировки) */
+  button { 
+    background: linear-gradient(180deg, #3d1a40 0%, #2a1233 100%); color: var(--text-gold); 
+    border: 1px solid var(--border-gold); padding: 10px 16px; border-radius: 4px; 
+    font-size: 14px; font-family: var(--font-title); cursor: pointer; transition: 0.2s; 
+    font-weight: 600; display: inline-flex; align-items: center; gap: 8px; letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+  button:hover { background: #4d2152; border-color: #ffd700; color: #ffd700; box-shadow: 0 0 10px rgba(230, 185, 92, 0.4); }
+  button.primary { background: var(--book-emerald); border-color: var(--text-gold); color: #a4e3c3; }
+  button.primary:hover { background: #2a5a45; color: #fff; }
+  button.danger { color: #ff8a8a; border-color: #7a2a2a; }
+  button.danger:hover { background: #4a1a1a; border-color: #ff5555; color: #ff5555; }
+  
+  /* ИКОНКИ */
+  .icon { width: 18px; height: 18px; fill: currentColor; }
 
-  .search-bar { width: 100%; padding: 12px 16px; border-radius: 6px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 15px; margin-bottom: 20px; font-family: var(--font-serif); transition: 0.3s; }
-  .search-bar:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 10px rgba(212,175,55,0.1); }
+  /* ПОИСК */
+  .search-wrapper { position: relative; margin-bottom: 30px; }
+  .search-bar { 
+    width: 100%; padding: 16px 20px 16px 48px; border-radius: 4px; 
+    border: 2px solid var(--border-dark); background: rgba(10, 5, 10, 0.6); color: var(--text-gold); 
+    font-size: 18px; font-family: var(--font-hand); transition: 0.2s; 
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+  }
+  .search-bar::placeholder { color: var(--text-muted); }
+  .search-bar:focus { outline: none; border-color: var(--border-gold); box-shadow: inset 0 2px 10px rgba(0,0,0,0.8), 0 0 15px rgba(184, 138, 68, 0.3); }
+  .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: var(--text-gold); }
 
-  .breadcrumbs { font-size: 14px; color: var(--muted); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-serif);}
-  .breadcrumbs a { color: var(--accent); text-decoration: none; cursor: pointer; transition: .2s; }
-  .breadcrumbs a:hover { color: var(--accent-hover); text-shadow: 0 0 8px rgba(255,215,0,0.4); }
+  /* ХЛЕБНЫЕ КРОШКИ */
+  .breadcrumbs { font-size: 16px; color: var(--text-muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; font-family: var(--font-hand); }
+  .breadcrumbs a { color: var(--text-gold); text-decoration: none; cursor: pointer; transition: 0.2s; }
+  .breadcrumbs a:hover { color: #fff; text-shadow: 0 0 8px #fff; }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  /* СЕТКА ПАЛИТР (Полка с книгами) */
+  .grid-palettes { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; align-items: end; padding-bottom: 20px; border-bottom: 8px solid #110614; border-radius: 4px; box-shadow: 0 10px 20px -10px #000; }
+  
+  .book-spine { 
+    background: var(--book-purple); border: 1px solid var(--border-dark); border-radius: 4px 4px 0 0;
+    padding: 20px 16px; cursor: pointer; transition: 0.2s; position: relative;
+    min-height: 220px; display: flex; flex-direction: column;
+    box-shadow: 3px 0 10px rgba(0,0,0,0.6), inset -2px 0 5px rgba(255,255,255,0.05);
+  }
+  .book-spine:nth-child(3n+1) { background: var(--book-magenta); }
+  .book-spine:nth-child(3n+2) { background: var(--book-emerald); }
+  .book-spine:nth-child(3n+3) { background: var(--book-grey); }
+  
+  .book-spine:hover { transform: translateY(-10px); box-shadow: 5px 10px 20px rgba(0,0,0,0.8); z-index: 2; }
+  .book-spine.special { background: #2a1233; border: 2px solid var(--text-gold); box-shadow: 0 0 15px rgba(184, 138, 68, 0.3); }
+  
+  .book-title { font-family: var(--font-title); font-weight: 700; font-size: 18px; color: var(--text-gold); line-height: 1.2; text-align: center; margin-bottom: 8px; text-shadow: 0 1px 2px #000; }
+  .book-meta { font-family: var(--font-hand); font-size: 16px; color: rgba(255,255,255,0.7); text-align: center; margin-top: auto; }
+  
+  .book-decor { height: 2px; background: var(--text-gold); width: 60%; margin: 10px auto; opacity: 0.5; border-radius: 2px; }
+  .book-preview { display: flex; justify-content: center; gap: 2px; margin-top: 15px; }
+  .book-preview div { width: 8px; height: 8px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.5); }
 
-  .palette-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; cursor: pointer; transition: .2s; display: flex; justify-content: space-between; align-items: center; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
-  .palette-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 4px 12px rgba(212,175,55,0.1); }
-  .palette-card.special { border-color: rgba(212, 175, 55, 0.6); background: rgba(212, 175, 55, 0.05); }
-  .palette-info .title { font-family: var(--font-serif); font-weight: 700; font-size: 18px; margin-bottom: 6px; line-height: 1.3; color: #f0e6d2; }
-  .palette-info .meta { font-size: 13px; color: var(--muted); margin-top: 6px; font-style: italic; }
+  /* СЕТКА ЦВЕТОВ */
+  .grid-colors { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
 
-  .color-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px; position: relative; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); content-visibility: auto; contain-intrinsic-size: 200px; }
+  /* КАРТОЧКА ЦВЕТА (Страница книги) */
+  .color-card { 
+    background: #f4ebd9; /* Цвет пергамента */
+    background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100" height="100" filter="url(%23noise)" opacity="0.05"/></svg>');
+    border: 1px solid #c4b5a0; border-radius: 4px; 
+    padding: 20px; display: flex; flex-direction: column; gap: 16px; position: relative; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5); color: var(--text-ink);
+    content-visibility: auto; contain-intrinsic-size: 250px;
+  }
+  .color-card::after { content: ''; position: absolute; inset: 4px; border: 1px solid rgba(139, 100, 50, 0.3); pointer-events: none; }
+  
   .color-card.clickable { cursor: pointer; transition: 0.2s; }
-  .color-card.clickable:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 4px 12px rgba(212,175,55,0.1); }
+  .color-card.clickable:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.7); }
   
-  .card-head { display: flex; gap: 12px; align-items: center; }
-  .swatch { width: 42px; height: 42px; border-radius: 50%; border: 2px solid rgba(212, 175, 55, 0.4); flex-shrink: 0; box-shadow: inset 0 0 10px rgba(255,255,255,0.2), 0 0 12px rgba(0,0,0,0.8); position: relative; }
-  .swatch::after { content: ''; position: absolute; top: 4px; left: 6px; width: 12px; height: 6px; background: rgba(255,255,255,0.4); border-radius: 50%; transform: rotate(-45deg); }
+  .color-header { display: flex; gap: 16px; align-items: center; border-bottom: 1px solid rgba(139, 100, 50, 0.3); padding-bottom: 12px; }
+  .color-swatch { 
+    width: 56px; height: 56px; border-radius: 50%; border: 3px solid #c4b5a0; 
+    flex-shrink: 0; box-shadow: inset 0 2px 5px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2); position: relative;
+  }
+  .color-swatch::after { content: ''; position: absolute; top: 6px; left: 8px; width: 14px; height: 6px; background: rgba(255,255,255,0.4); border-radius: 50%; transform: rotate(-45deg); }
   
-  .names { flex: 1; min-width: 0; }
-  .names .title { font-family: var(--font-serif); font-weight: 700; font-size: 16px; line-height: 1.3; color: #f0e6d2;}
-  .names .sub { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: var(--font-serif); font-style: italic; }
+  .color-info { flex: 1; min-width: 0; }
+  .color-name { font-family: var(--font-title); font-weight: 700; font-size: 18px; line-height: 1.2; color: #2b1a22; margin-bottom: 4px; }
+  .color-code { font-family: var(--font-hand); font-size: 16px; color: #5a4a3a; }
+
+  /* ФОРМУЛЫ */
+  .formula-block { background: rgba(220, 205, 180, 0.5); border: 1px solid rgba(139, 100, 50, 0.2); border-radius: 4px; padding: 12px; }
+  .formula-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .formula-base { font-family: var(--font-title); font-size: 12px; font-weight: 700; color: #6b4a2a; }
+  .formula-content { font-family: var(--font-mono); font-size: 15px; line-height: 1.5; color: #1a0b1c; font-weight: 600; }
+  .formula-content span.unit { color: #7a6a5a; font-size: 12px; }
   
-  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-top: 6px; margin-right: 4px; font-weight: bold; font-family: var(--font-sans); }
-  .tag.material { background: rgba(212, 175, 55, 0.1); color: var(--accent); border: 1px solid rgba(212, 175, 55, 0.3); }
-  .tag.old { background: rgba(167, 58, 58, 0.1); color: #e07a7a; border: 1px solid rgba(167, 58, 58, 0.3); }
-  .tag.ncs { background: rgba(79, 140, 255, 0.15); color: #9bc1ff; border: 1px solid rgba(79, 140, 255, 0.3); }
-  
-  .formula-box { background: var(--card2); padding: 10px; border-radius: 6px; font-size: 13px; font-family: ui-monospace, monospace; border-left: 3px solid var(--border); }
-  .formula-box.old-formula { border-left-color: var(--danger); opacity: 0.7; }
-  .formula-title { font-size: 11px; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; font-weight: bold; font-family: var(--font-sans); letter-spacing: 0.5px; }
-  
-  .vol-calc { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
-  .vol-calc input { width: 60px; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: ui-monospace, monospace; text-align: center; }
-  .vol-calc input:focus { outline: none; border-color: var(--accent); }
+  /* КАЛЬКУЛЯТОР */
+  .calc-row { 
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; 
+    background: rgba(180, 160, 130, 0.2); padding: 8px 12px; border-radius: 4px; margin-top: 10px; 
+    font-size: 13px; color: #4a3a2a; border: 1px solid rgba(139, 100, 50, 0.2);
+  }
+  .calc-inputs { display: flex; align-items: center; gap: 8px; }
+  .calc-input { 
+    width: 65px; padding: 4px 6px; border-radius: 2px; border: 1px solid rgba(139, 100, 50, 0.4); 
+    background: #f4ebd9; color: #1a0b1c; font-family: var(--font-mono); text-align: center; font-size: 14px; font-weight: bold;
+  }
+  .calc-input:focus { outline: none; border-color: #8b6432; }
+  .calc-label { font-family: var(--font-title); font-size: 11px; font-weight: bold; color: #6b4a2a; }
 
-  .similar-box { background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.2); padding: 10px; border-radius: 6px; margin-top: 6px; }
-  .similar-title { font-family: var(--font-serif); font-size: 13px; color: var(--accent); font-weight: 700; margin-bottom: 6px; letter-spacing: 0.5px;}
-  .similar-item { font-size: 12px; display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(212,175,55,0.2); padding: 6px 4px; cursor: pointer; border-radius: 4px; transition: 0.15s;}
-  .similar-item:hover { background: rgba(212,175,55,0.1); border-bottom-color: transparent; }
-  .similar-item:last-child { border-bottom: none; }
-  .match-percent { color: var(--ok); font-weight: bold; font-family: ui-monospace, monospace;}
+  /* ТЕГИ */
+  .tags-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tag { font-size: 11px; padding: 2px 8px; border-radius: 2px; font-weight: 700; font-family: var(--font-title); text-transform: uppercase; letter-spacing: 0.5px; }
+  .tag.material { background: rgba(29, 61, 46, 0.1); color: var(--book-emerald); border: 1px solid var(--book-emerald); }
+  .tag.ncs { background: rgba(42, 18, 51, 0.1); color: var(--book-purple); border: 1px solid var(--book-purple); }
+  .tag.old { background: rgba(140, 42, 42, 0.1); color: #8c2a2a; border: 1px solid #8c2a2a; }
 
-  .card-actions { display: flex; gap: 8px; margin-top: 8px; }
-  .card-actions button { flex: 1; padding: 8px; font-size: 13px; }
+  /* ДЕЙСТВИЯ С ЦВЕТОМ */
+  .card-actions { display: flex; gap: 8px; margin-top: auto; padding-top: 12px; border-top: 1px dashed rgba(139, 100, 50, 0.4); }
+  .card-actions button { flex: 1; padding: 8px; font-size: 12px; justify-content: center; background: transparent; border: 1px solid rgba(139, 100, 50, 0.5); color: #4a3a2a; box-shadow: none; }
+  .card-actions button:hover { background: rgba(139, 100, 50, 0.1); color: #1a0b1c; border-color: #6b4a2a; box-shadow: none; }
+  .card-actions button.danger { color: #8c2a2a; border-color: #8c2a2a; }
+  .card-actions button.danger:hover { background: rgba(140, 42, 42, 0.1); color: #ff0000; }
+  .card-actions .icon { width: 14px; height: 14px; }
 
-  .empty { text-align: center; color: var(--muted); padding: 60px 20px; font-size: 16px; font-family: var(--font-serif); font-style: italic;}
-  .load-more { display: block; width: 100%; margin-top: 20px; padding: 14px; background: rgba(212, 175, 55, 0.1); border: 1px solid var(--accent); color: var(--accent); font-family: var(--font-serif); font-size: 16px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
-  .load-more:hover { background: rgba(212, 175, 55, 0.2); box-shadow: 0 0 15px rgba(212,175,55,0.3);}
+  /* ПУСТОЕ СОСТОЯНИЕ */
+  .empty-state { text-align: center; color: var(--text-muted); padding: 60px 20px; font-family: var(--font-hand); font-size: 22px; }
+  .empty-state svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.5; fill: var(--text-gold); }
 
-  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
-  .modal-overlay.active { display: flex; }
-  .modal-content { background: var(--card); border: 1px solid var(--accent); border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; padding: 20px; box-shadow: 0 0 30px rgba(212,175,55,0.2); position: relative; animation: modalIn 0.2s ease-out; }
-  @keyframes modalIn { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-  .modal-close { position: absolute; top: 12px; right: 12px; background: transparent; border: none; color: var(--muted); font-size: 24px; cursor: pointer; padding: 0; line-height: 1; }
-  .modal-close:hover { color: var(--danger); }
-
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1a141c; color: var(--accent); border: 1px solid var(--accent); padding: 12px 24px; border-radius: 6px; font-weight: 600; font-family: var(--font-serif); transition: .3s; z-index: 300; max-width: 90vw; text-align: center; box-shadow: 0 0 20px rgba(212,175,55,0.2); }
+  /* УВЕДОМЛЕНИЯ */
+  .toast { 
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); 
+    background: var(--book-purple); color: var(--text-gold); border: 1px solid var(--text-gold); 
+    padding: 16px 32px; border-radius: 4px; font-family: var(--font-title); font-weight: 600; font-size: 16px;
+    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 300; box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+  }
   .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.err { border-color: var(--danger); color: #e07a7a; box-shadow: 0 0 20px rgba(167,58,58,0.2); }
+  .toast.error { background: #4a1a1a; color: #ff8a8a; border-color: #ff8a8a; }
 
-  @media (max-width: 600px) { body { padding: 12px; padding-bottom: 80px; } h1 { font-size: 20px; } .grid { grid-template-columns: 1fr; } .toolbar button { padding: 6px 10px; font-size: 12px; } .modal-content { padding: 16px; } .vol-calc { flex-direction: column; align-items: flex-start; gap: 4px; } }
+  /* МОДАЛЬНОЕ ОКНО */
+  .modal-overlay { 
+    position: fixed; inset: 0; background: rgba(10, 5, 10, 0.85); backdrop-filter: blur(4px); 
+    display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; 
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-content { 
+    background: #f4ebd9; border: 2px solid #8b6432; border-radius: 4px; 
+    width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; padding: 32px; 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8); position: relative; animation: modalIn 0.3s ease-out; color: var(--text-ink);
+  }
+  .modal-content::after { content: ''; position: absolute; inset: 6px; border: 1px solid rgba(139, 100, 50, 0.3); pointer-events: none; }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: #6b4a2a; font-size: 28px; cursor: pointer; line-height: 1; transition: 0.2s; padding: 4px; z-index: 10;}
+  .modal-close:hover { color: #1a0b1c; }
+
+  /* ДОПОЛНИТЕЛЬНЫЕ КНОПКИ (РЕДАКТИРОВАНИЕ) */
+  .edit-btn { background: transparent; border: none; color: #7a6a5a; cursor: pointer; padding: 4px; display: inline-flex; align-items: center; border-radius: 2px; transition: 0.2s; }
+  .edit-btn:hover { color: #2b1a22; background: rgba(139, 100, 50, 0.1); }
+  .formula-edit-btn { background: transparent; border: 1px solid rgba(139, 100, 50, 0.4); color: #6b4a2a; font-size: 11px; padding: 2px 8px; border-radius: 2px; cursor: pointer; transition: 0.2s; font-family: var(--font-title); }
+  .formula-edit-btn:hover { border-color: #8b6432; color: #1a0b1c; }
+
+  @media (max-width: 600px) {
+    body { padding: 12px; }
+    h1 { font-size: 20px; }
+    .toolbar { width: 100%; justify-content: space-between; }
+    .toolbar button { flex: 1; padding: 8px 4px; font-size: 11px; }
+    .grid-colors { grid-template-columns: 1fr; }
+    .grid-palettes { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .book-spine { min-height: 180px; padding: 15px 10px; }
+    .book-title { font-size: 14px; }
+    .modal-content { padding: 24px; }
+    .calc-row { flex-direction: column; align-items: flex-start; }
+  }
 </style>
 </head>
 <body>
 
-<!-- Экран входа -->
+<!-- ЭКРАН ВХОДА -->
 <div id="authScreen">
   <div class="auth-box">
-    <h2>🔒 Вход в Гримуар</h2>
+    <h2>Вход в Гримуар</h2>
     <div class="auth-error" id="authError"></div>
-    <input type="email" id="authEmail" placeholder="Email (рабочая почта)">
+    <input type="email" id="authEmail" placeholder="Тайный email (почта)">
     <input type="password" id="authPass" placeholder="Пароль">
-    <button class="primary" onclick="login()">Войти</button>
-    <button onclick="register()" style="background:transparent; border:none; color:var(--muted); font-size:13px; text-decoration:underline;">Зарегистрировать нового коллегу</button>
+    <button class="primary" onclick="login()">Открыть книгу</button>
+    <button onclick="register()" style="background:transparent; border:none; color:var(--text-muted); font-size:14px; text-decoration:underline; margin-top:8px; width:auto; padding:0; box-shadow:none;">Посвятить нового коллегу</button>
   </div>
 </div>
 
-<!-- Основной интерфейс -->
+<!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
 <div id="appScreen" style="display:none;">
   <header>
-    <h1 id="pageTitle">📜 Гримуар повелительниц подземелья</h1>
+    <h1 id="pageTitle">Гримуар</h1>
     <div class="toolbar" id="toolbar">
-      <button onclick="document.getElementById('importFiles').click()" class="primary">📥 Влить данные</button>
-      <button onclick="toggleArchiveView()" id="archiveBtn">🗄 Забвение</button>
-      <button onclick="toggleEditMode()" id="editModeBtn">✍️ Редактировать</button>
-      <button onclick="logout()" class="danger">🚪 Выйти</button>
+      <button onclick="document.getElementById('importFiles').click()" class="primary">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/></svg>
+        Влить данные
+      </button>
+      <button onclick="toggleArchiveView()" id="archiveBtn">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M20 6H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2zm0 12H4V8h16v10zM2 4h20v2H2z"/></svg>
+        Забвение
+      </button>
+      <button onclick="toggleEditMode()" id="editModeBtn">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+        Правка
+      </button>
+      <button onclick="logout()" class="danger">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+        Выйти
+      </button>
     </div>
   </header>
   <input type="file" id="importFiles" multiple accept=".csv" style="display:none" onchange="handleImport(event)">
 
   <div class="breadcrumbs" id="crumbs" style="display:none"></div>
-  <input class="search-bar" id="search" placeholder="🔍 Поиск по всему гримуару..." oninput="onSearchInput()">
+  
+  <div class="search-wrapper">
+    <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    <input class="search-bar" id="search" placeholder="Поиск заклинаний (цветов)..." oninput="onSearchInput()">
+  </div>
 
-  <div class="grid" id="list"></div>
-  <div class="empty" id="empty" style="display:none"></div>
-  <button class="load-more" id="loadMoreBtn" style="display:none" onclick="loadMore()">📜 Показать еще свитки</button>
+  <div id="list"></div>
+  
+  <div class="empty-state" id="empty" style="display:none">
+    <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
+    <p>Страницы пусты. Влейте данные, чтобы оживить Гримуар.</p>
+  </div>
+  
+  <button class="load-more" id="loadMoreBtn" style="display:none" onclick="loadMore()">Показать еще...</button>
 
+  <!-- МОДАЛЬНОЕ ОКНО -->
   <div class="modal-overlay" id="colorModal" onclick="closeModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModal()">×</button>
@@ -166,11 +302,11 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const { createClient } = supabase;
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ============ Утилиты ============
+// ============ УТИЛИТЫ ============
 const $=id=>document.getElementById(id);
 function escapeHtml(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function toast(msg,err){ const t=$('toast'); t.textContent=msg; t.className='toast show'+(err?' err':'');
-  clearTimeout(t._t); t._t=setTimeout(()=>t.className='toast',4000); }
+function toast(msg,isErr){ const t=$('toast'); t.textContent=msg; t.className='toast show'+(isErr?' error':'');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.className='toast',3000); }
 
 // ============ АВТОРИЗАЦИЯ ============
 async function login() {
@@ -179,31 +315,23 @@ async function login() {
   const { error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
   
   if (error) {
-    $('authError').textContent = 'Ошибка: ' + error.message;
+    $('authError').textContent = error.message;
     $('authError').style.display = 'block';
-  } else {
-    checkAuth();
-  }
+  } else { checkAuth(); }
 }
 
 async function register() {
   const email = $('authEmail').value;
   const pass = $('authPass').value;
   if (!email || !pass) { alert('Введите email и пароль'); return; }
-  
   const { error } = await supabaseClient.auth.signUp({ email, password: pass });
   if (error) {
-    $('authError').textContent = 'Ошибка: ' + error.message;
+    $('authError').textContent = error.message;
     $('authError').style.display = 'block';
-  } else {
-    alert('Регистрация успешна! Теперь вы можете войти.');
-  }
+  } else { alert('Успешно! Теперь войдите.'); }
 }
 
-async function logout() {
-  await supabaseClient.auth.signOut();
-  location.reload();
-}
+async function logout() { await supabaseClient.auth.signOut(); location.reload(); }
 
 async function checkAuth() {
   const { data: { session } } = await supabaseClient.auth.getSession();
@@ -232,16 +360,18 @@ async function loadDataFromCloud() {
 }
 
 async function savePaletteToCloud(palette) {
-  const { error } = await supabaseClient.from('palettes').upsert({ id: palette.id, name: palette.name, data: palette });
+  const safeId = String(palette.id);
+  const payload = { id: safeId, name: palette.name, data: palette };
+  const { error } = await supabaseClient.from('palettes').upsert(payload);
   if (error) { toast('Ошибка сохранения: ' + error.message, true); console.error(error); }
 }
 
 async function clearCloudBase() {
-  const { error } = await supabaseClient.from('palettes').delete().neq('id', 0);
+  const { error } = await supabaseClient.from('palettes').delete().neq('id', 'dummy_value_that_never_exists');
   if (error) { toast('Ошибка очистки: ' + error.message, true); }
 }
 
-// ============ ОСТАЛЬНАЯ ЛОГИКА ============
+// ============ ЛОГИКА ДАННЫХ ============
 function parseColorName(c) {
   let main = c.EXTERNAL_NAME || c.NAME || 'Без названия';
   let sub = c.NAME_RUS || c.NAME || '';
@@ -320,12 +450,11 @@ async function handleImport(e) {
     else if (name.includes('material')) dataMaterial = records;
   }
 
-  if (!dataColor.length || (!dataFormula.length && !dataFormulaOld.length)) { toast('Ошибка: нет файлов color или formula', true); return; }
-  $('pageTitle').textContent = '⏳ Переписываем свитки...';
+  if (!dataColor.length || (!dataFormula.length && !dataFormulaOld.length)) { toast('Нет файлов color или formula', true); return; }
+  $('pageTitle').textContent = 'Переплетаем страницы...';
 
   const palettesObj = {};
   dataPalette.forEach(p => { 
-    // Ищем ID палитры в разных возможных колонках
     const pId = p.ID_PALETTE || p.ID || p.id_palette || p.id;
     palettesObj[pId] = { id: Number(pId), name: p.NAME_PALETTE || p.NAME || p.name_palette || p.name || 'Без названия', colors: [] }; 
   });
@@ -358,18 +487,13 @@ async function handleImport(e) {
   if (dataFormula.length > 0) buildFormulas(dataFormula, dataComponent, false);
   if (dataFormulaOld.length > 0) buildFormulas(dataFormulaOld, dataComponentOld, true);
 
-  const virtualNCS = { id: 'virtual_ncs', name: '🔮 Справочник NCS', colors: [], isVirtual: true };
-  const virtualRAL = { id: 'virtual_ral', name: '🔮 Справочник RAL', colors: [], isVirtual: true };
+  const virtualNCS = { id: 'virtual_ncs', name: 'Справочник NCS', colors: [], isVirtual: true };
+  const virtualRAL = { id: 'virtual_ral', name: 'Справочник RAL', colors: [], isVirtual: true };
 
   Object.values(colorsMap).forEach(c => {
     if (c.formulas.length === 0) return;
-    
-    // Ищем ID палитры цвета
     const pId = c.PALETTE_ID || c.palette_id || c.ID_PALETTE;
-    
-    if (!palettesObj[pId]) {
-      palettesObj[pId] = { id: Number(pId), name: 'Раздел ' + pId, colors: [] };
-    }
+    if (!palettesObj[pId]) palettesObj[pId] = { id: Number(pId), name: 'Раздел ' + pId, colors: [] };
     
     let hex = '#000000';
     if (c.RGB && c.RGB !== 'NULL' && c.RGB !== '0') { const rgbInt = parseInt(c.RGB); if (!isNaN(rgbInt)) hex = '#' + (rgbInt & 0xFFFFFF).toString(16).padStart(6, '0'); }
@@ -379,7 +503,6 @@ async function handleImport(e) {
     
     palettesObj[pId].colors.push(colorData);
     
-    // УМНЫЙ ПОИСК NCS (ищем NCS в любом из трех названий)
     const searchString = ((c.EXTERNAL_NAME||'') + ' ' + (c.NAME||'') + ' ' + (c.NAME_RUS||'')).toUpperCase();
     if (searchString.includes('NCS')) virtualNCS.colors.push({ ...colorData, isVirtualCopy: true });
     if (searchString.includes('RAL')) virtualRAL.colors.push({ ...colorData, isVirtualCopy: true });
@@ -387,29 +510,20 @@ async function handleImport(e) {
 
   await clearCloudBase();
   
-  // Сохраняем виртуальные папки первыми, чтобы они были в начале списка
-  if (virtualNCS.colors.length > 0) { 
-    virtualNCS.colors.sort((a,b) => (a.EXTERNAL_NAME||'').localeCompare(b.EXTERNAL_NAME||'')); 
-    await savePaletteToCloud(virtualNCS); 
-  }
-  if (virtualRAL.colors.length > 0) { 
-    virtualRAL.colors.sort((a,b) => (a.EXTERNAL_NAME||'').localeCompare(b.EXTERNAL_NAME||'')); 
-    await savePaletteToCloud(virtualRAL); 
-  }
+  if (virtualNCS.colors.length > 0) { virtualNCS.colors.sort((a,b) => (a.EXTERNAL_NAME||'').localeCompare(b.EXTERNAL_NAME||'')); await savePaletteToCloud(virtualNCS); }
+  if (virtualRAL.colors.length > 0) { virtualRAL.colors.sort((a,b) => (a.EXTERNAL_NAME||'').localeCompare(b.EXTERNAL_NAME||'')); await savePaletteToCloud(virtualRAL); }
   
   for (let key in palettesObj) {
     const p = palettesObj[key];
-    if (p.colors.length > 0) { 
-      p.colors.sort((a,b) => (a.EXTERNAL_NAME||'').localeCompare(b.EXTERNAL_NAME||'')); 
-      await savePaletteToCloud(p); 
-    }
+    if (p.colors.length > 0) { p.colors.sort((a,b) => (a.EXTERNAL_NAME||'').localeCompare(b.EXTERNAL_NAME||'')); await savePaletteToCloud(p); }
   }
 
-  toast(`Успех! Данные загружены в облако.`);
+  toast('Гримуар обновлен');
   await loadDataFromCloud();
   e.target.value = '';
 }
 
+// ============ СОСТОЯНИЕ И РЕНДЕР ============
 let allPalettes=[]; let currentPaletteId=null; let isArchiveView = false; let isEditMode = false;
 let currentItems = []; let visibleCount = 50; const PAGE_SIZE = 50;
 
@@ -417,9 +531,9 @@ function toggleArchiveView() { isArchiveView = !isArchiveView; $('archiveBtn').c
 
 function toggleEditMode() {
   if (isEditMode) { isEditMode = false; $('editModeBtn').classList.remove('primary'); toast('Режим чтения.'); render(); return; }
-  const pass = prompt('Введите пароль (1234):');
-  if (pass === '1234') { isEditMode = true; $('editModeBtn').classList.add('primary'); toast('Режим редактора.'); render(); }
-  else if (pass !== null) toast('Неверный пароль.', true);
+  const pass = prompt('Секретное слово для правки:');
+  if (pass === '1234') { isEditMode = true; $('editModeBtn').classList.add('primary'); toast('Режим правки.'); render(); }
+  else if (pass !== null) toast('Неверное слово.', true);
 }
 
 let searchTimeout;
@@ -437,36 +551,45 @@ function renderListOnly() { if(!currentPaletteId){ renderPalettes(); } else { re
 
 function renderGlobalSearch() {
   const q = $('search').value.trim().toLowerCase();
-  $('pageTitle').textContent = `🔍 Результаты поиска: "${q}"`;
-  $('crumbs').style.display='flex'; $('crumbs').innerHTML=`<a onclick="clearSearch()">← Сбросить поиск</a>`;
+  $('pageTitle').textContent = `Поиск: "${q}"`;
+  $('crumbs').style.display='flex'; $('crumbs').innerHTML=`<a onclick="clearSearch()">← Назад</a>`;
+  
   const allColors = [];
   allPalettes.forEach(p => {
     if (p.isVirtual) return;
     p.colors.forEach(c => { if (c.isArchived === isArchiveView) { const nd = parseColorName(c); allColors.push({ ...c, sourcePaletteName: p.name, searchText: nd.main + ' ' + nd.sub }); } });
   });
+  
   currentItems = filterAndSort(allColors, q, c => c.searchText);
   $('empty').style.display=currentItems.length?'none':'block';
-  const list=$('list'); list.innerHTML='';
+  
+  const list=$('list'); list.innerHTML='<div class="grid-colors">';
+  const gridContainer = list.firstChild;
   const itemsToShow = currentItems.slice(0, visibleCount);
+  
   for(const c of itemsToShow){
     const el=document.createElement('div'); el.className='color-card clickable';
     el.onclick=(e) => { if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') openColorModal(c.ID); };
     let formulasHtml = '';
     const mainFormula = c.formulas.find(f => !f.isOld) || c.formulas[0];
     if (mainFormula) {
-      const comps = mainFormula.components.map(x => `<b>${x.pigment}</b>:${x.amount.toFixed(2)}`).join(' ');
+      const comps = mainFormula.components.map(x => `${x.pigment}: ${x.amount.toFixed(1)}`).join(' | ');
       const matTag = mainFormula.materialName ? `<span class="tag material">${escapeHtml(mainFormula.materialName)}</span>` : '';
-      formulasHtml = `<div class="formula-box"><div class="formula-title">База ${mainFormula.base || '?'} ${matTag}</div><div>${comps} <span style="font-size:11px;color:var(--muted)">oz</span></div></div>`;
+      formulasHtml = `<div class="formula-block"><div class="formula-header"><span class="formula-base">База ${mainFormula.base || '?'}</span>${matTag}</div><div class="formula-content">${comps} <span class="unit">мл</span></div></div>`;
     }
     let ncsBadge = ''; const searchStr = ((c.EXTERNAL_NAME||'') + ' ' + (c.NAME||'')).toUpperCase(); if (searchStr.includes('NCS')) ncsBadge = `<span class="tag ncs">NCS</span>`;
     const nameData = parseColorName(c);
     el.innerHTML=`
-      <div class="card-head"><div class="swatch" style="background:${c.hex}"></div>
-        <div class="names"><div class="title">${escapeHtml(nameData.main)} ${ncsBadge}</div>
-          <div class="sub">${escapeHtml(nameData.sub)}</div>
-          <div style="font-size: 11px; color: var(--accent); margin-top: 4px;">📁 ${escapeHtml(c.sourcePaletteName)}</div>
-        </div></div>${formulasHtml}`;
-    list.appendChild(el);
+      <div class="color-header">
+        <div class="color-swatch" style="background:${c.hex}"></div>
+        <div class="color-info">
+          <div class="color-name">${escapeHtml(nameData.main)} ${ncsBadge}</div>
+          <div class="color-code">${escapeHtml(nameData.sub)}</div>
+          <div style="font-size: 12px; color: #8c2a6e; margin-top: 6px; font-family: var(--font-hand);">Из: ${escapeHtml(c.sourcePaletteName)}</div>
+        </div>
+      </div>
+      ${formulasHtml}`;
+    gridContainer.appendChild(el);
   }
   updateLoadMoreBtn(itemsToShow.length, currentItems.length);
 }
@@ -476,25 +599,44 @@ function clearSearch() { $('search').value = ''; currentPaletteId = null; visibl
 function renderPalettes(){
   const q=$('search').value.trim().toLowerCase();
   const totalRecipes = allPalettes.reduce((sum, p) => sum + p.colors.filter(c => !c.isArchived).length, 0);
-  $('pageTitle').textContent = isArchiveView ? '🗄 Забвение' : `📜 Гримуар (${totalRecipes} рецептов)`;
+  $('pageTitle').textContent = isArchiveView ? 'Забвение' : `Гримуар (${totalRecipes})`;
   $('crumbs').style.display='none';
+  
   const processedPalettes = allPalettes.map(p => {
     const activeColors = p.colors.filter(c => !c.isArchived); const archivedColors = p.colors.filter(c => c.isArchived);
     return { ...p, activeCount: activeColors.length, archivedCount: archivedColors.length };
   });
+  
   currentItems = filterAndSort(processedPalettes, q, p => p.name);
   $('empty').style.display=currentItems.length?'none':'block';
-  $('empty').textContent=allPalettes.length?'Ничего не найдено':'База пуста. Загрузите CSV.';
-  const list=$('list'); list.innerHTML='';
+  
+  const list=$('list'); list.innerHTML='<div class="grid-palettes">';
+  const gridContainer = list.firstChild;
   const itemsToShow = currentItems.slice(0, visibleCount);
+  
   for(const p of itemsToShow){
     if (isArchiveView && p.isVirtual) continue;
-    const el=document.createElement('div'); el.className='palette-card' + (p.isVirtual ? ' special' : '');
+    const el=document.createElement('div'); el.className='book-spine' + (p.isVirtual ? ' special' : '');
     const count = isArchiveView ? p.archivedCount : p.activeCount; if (count === 0) el.style.opacity = '0.5';
-    el.onclick=(e)=>{ if (e.target.tagName === 'BUTTON') return; currentPaletteId=p.id; $('search').value=''; visibleCount = PAGE_SIZE; render(); };
-    let renameBtn = ''; if (isEditMode && !p.isVirtual) renameBtn = `<button class="edit-btn" onclick="renamePalette('${p.id}')">✏️</button>`;
-    el.innerHTML=`<div class="palette-info"><div class="title">${escapeHtml(p.name)} ${renameBtn}</div><div class="meta">${count} ${isArchiveView ? 'в забвении' : 'рецептов'}</div></div>`;
-    list.appendChild(el);
+    el.onclick=(e)=>{ if (e.target.tagName === 'BUTTON' || e.target.tagName === 'svg') return; currentPaletteId=p.id; $('search').value=''; visibleCount = PAGE_SIZE; render(); };
+    
+    let renameBtn = ''; if (isEditMode && !p.isVirtual) renameBtn = `<button class="edit-btn" style="position:absolute; top:10px; right:10px; color:var(--text-gold);" onclick="renamePalette('${p.id}')" title="Переименовать"><svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>`;
+    
+    // Генерируем цветную полоску-превью (как закладки)
+    let previewHtml = '<div class="book-preview">';
+    const previewColors = p.colors.slice(0, 5);
+    if (previewColors.length === 0) previewHtml += '<div style="background:rgba(255,255,255,0.1)"></div>';
+    else previewColors.forEach(c => { previewHtml += `<div style="background:${c.hex}"></div>`; });
+    previewHtml += '</div>';
+
+    el.innerHTML=`
+      ${renameBtn}
+      <div class="book-title">${escapeHtml(p.name)}</div>
+      <div class="book-decor"></div>
+      <div class="book-meta">${count} ${isArchiveView ? 'в забвении' : 'рецептов'}</div>
+      ${previewHtml}
+    `;
+    gridContainer.appendChild(el);
   }
   updateLoadMoreBtn(itemsToShow.length, currentItems.length);
 }
@@ -503,12 +645,16 @@ function renderColors(){
   const p=allPalettes.find(x=>String(x.id)===String(currentPaletteId));
   if(!p){ currentPaletteId=null; render(); return; }
   const q=$('search').value.trim().toLowerCase();
-  $('pageTitle').textContent = (isArchiveView ? '🗄 ' : '📜 ') + escapeHtml(p.name);
-  $('crumbs').style.display='flex'; $('crumbs').innerHTML=`<a onclick="backToPalettes()">← В главное меню</a>`;
+  
+  $('pageTitle').textContent = (isArchiveView ? 'Забвение: ' : '') + p.name;
+  $('crumbs').style.display='flex'; $('crumbs').innerHTML=`<a onclick="backToPalettes()">← К полке</a>`;
+  
   let colors = p.colors.filter(c => !!c.isArchived === isArchiveView);
   currentItems = filterAndSort(colors, q, c => { const nd = parseColorName(c); return nd.main + ' ' + nd.sub; });
   $('empty').style.display=currentItems.length?'none':'block';
-  const list=$('list'); list.innerHTML='';
+  
+  const list=$('list'); list.innerHTML='<div class="grid-colors">';
+  const gridContainer = list.firstChild;
   const itemsToShow = currentItems.slice(0, visibleCount);
   const allActiveColorsCache = allPalettes.flatMap(pal => pal.isVirtual ? [] : pal.colors.filter(c => !c.isArchived));
 
@@ -531,65 +677,107 @@ function renderColors(){
 
   for(const c of itemsToShow){
     const el=document.createElement('div'); el.className='color-card clickable';
-    el.onclick=(e) => { if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') openColorModal(c.ID); };
+    el.onclick=(e) => { if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'svg') openColorModal(c.ID); };
+    
     let formulasHtml = '';
+    
     c.formulas.forEach((f, fIndex) => {
-      const comps = f.components.map(x => `<b>${x.pigment}</b>:${x.amount.toFixed(2)}`).join(' ');
-      const oldTag = f.isOld ? `<span class="tag old">Старое заклинание</span>` : '';
+      const comps = f.components.map(x => `<b>${x.pigment}</b>: ${x.amount.toFixed(1)}`).join(' | ');
+      const oldTag = f.isOld ? `<span class="tag old">Старое</span>` : '';
       const matTag = f.materialName ? `<span class="tag material">${escapeHtml(f.materialName)}</span>` : '';
-      const boxClass = f.isOld ? 'formula-box old-formula' : 'formula-box';
+      
       let editFormulaBtn = ''; if (isEditMode && !p.isVirtual) editFormulaBtn = `<button class="formula-edit-btn" onclick="event.stopPropagation(); editFormula('${c.ID}', ${fIndex})">Править</button>`;
       const calcIdL = `vol_l_${c.ID}_${fIndex}`; const calcIdOz = `vol_oz_${c.ID}_${fIndex}`;
+      
       formulasHtml += `
-        <div class="${boxClass}">
-          ${editFormulaBtn}
-          <div class="formula-title">База ${f.base || '?'} ${oldTag} ${matTag}</div>
-          <div class="comps-text" id="text_${c.ID}_${fIndex}">${comps} <span style="font-size:11px;color:var(--muted)">oz</span></div>
-          <div class="vol-calc" onclick="event.stopPropagation()">
-            <span>на</span><input type="number" id="${calcIdL}" value="1" min="0.01" step="0.1" oninput="syncCalc('${c.ID}', ${fIndex}, this.value, 'L')"><span>л.</span>
-            <span style="margin:0 4px;">или</span><input type="number" id="${calcIdOz}" value="33.81" min="0.01" step="0.1" oninput="syncCalc('${c.ID}', ${fIndex}, this.value, 'OZ')"><span>oz.</span>
+        <div class="formula-block" style="${f.isOld ? 'opacity:0.7;' : ''}">
+          <div class="formula-header">
+            <span class="formula-base">База ${f.base || '?'} ${oldTag} ${matTag}</span>
+            ${editFormulaBtn}
+          </div>
+          <div class="formula-content" id="text_${c.ID}_${fIndex}">
+            ${comps} <span class="unit">мл</span>
+          </div>
+          
+          <div class="calc-row" onclick="event.stopPropagation()">
+            <span class="calc-label">Пересчет:</span>
+            <div class="calc-inputs">
+              <input type="number" class="calc-input" id="${calcIdL}" value="1" min="0.01" step="0.1" oninput="syncCalc('${c.ID}', ${fIndex}, this.value, 'L')">
+              <span style="font-family:var(--font-title); font-size:11px; color:#6b4a2a;">л</span>
+              <span style="color:#c4b5a0">/</span>
+              <input type="number" class="calc-input" id="${calcIdOz}" value="33.81" min="0.01" step="0.1" oninput="syncCalc('${c.ID}', ${fIndex}, this.value, 'OZ')">
+              <span style="font-family:var(--font-title); font-size:11px; color:#6b4a2a;">oz</span>
+            </div>
           </div>
         </div>`;
+        
       if (!f.isOld && !p.isVirtual) {
         const similar = findSimilar(f, f.materialId);
         if (similar.length > 0) {
-          const simItems = similar.map(s => `<div class="similar-item" onclick="event.stopPropagation(); openColorModal('${s.color.ID}')"><span>${escapeHtml(s.color.EXTERNAL_NAME)}</span><span class="match-percent">±${s.diff.toFixed(1)}</span></div>`).join('');
-          formulasHtml += `<div class="similar-box"><div class="similar-title">✨ Родственные чары (${escapeHtml(f.materialName || 'рецепты')})</div>${simItems}</div>`;
+          const simItems = similar.map(s => `
+            <div class="similar-item" onclick="event.stopPropagation(); openColorModal('${s.color.ID}')" style="border-bottom:1px dashed rgba(139,100,50,0.3); padding:6px 0; cursor:pointer; display:flex; justify-content:space-between; font-family:var(--font-hand); font-size:16px; color:#4a3a2a;">
+              <span>${escapeHtml(s.color.EXTERNAL_NAME)}</span>
+              <span style="color:#1d3d2e; font-weight:bold;">±${s.diff.toFixed(1)}</span>
+            </div>`).join('');
+          formulasHtml += `<div class="similar-box" style="background:rgba(29, 61, 46, 0.05); border:1px solid rgba(29,61,46,0.2); padding:10px; border-radius:4px; margin-top:8px;"><div class="similar-title" style="font-family:var(--font-title); font-size:12px; color:var(--book-emerald); font-weight:bold; margin-bottom:4px;">✨ Родственные чары</div>${simItems}</div>`;
         }
       }
     });
+
     let ncsBadge = ''; const searchStr = ((c.EXTERNAL_NAME||'') + ' ' + (c.NAME||'')).toUpperCase(); if (searchStr.includes('NCS')) ncsBadge = `<span class="tag ncs">NCS</span>`;
-    let renameColorBtn = ''; if (isEditMode && !p.isVirtual) renameColorBtn = `<button class="edit-btn" onclick="event.stopPropagation(); renameColor('${c.ID}')">✏️</button>`;
+    
+    let renameColorBtn = ''; if (isEditMode && !p.isVirtual) {
+        renameColorBtn = `<button class="edit-btn" onclick="event.stopPropagation(); renameColor('${c.ID}')" title="Переименовать"><svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>`;
+    }
+    
     const nameData = parseColorName(c);
     let actionsHtml = '';
     if (!p.isVirtual) {
-      const archiveBtn = c.isArchived ? `<button class="primary" onclick="event.stopPropagation(); toggleColorArchive('${c.ID}', false)">↩️ Вернуть</button>` : `<button class="warn" onclick="event.stopPropagation(); toggleColorArchive('${c.ID}', true)">🗄 В забвение</button>`;
-      const deleteBtn = `<button class="danger" onclick="event.stopPropagation(); deleteSingleColor('${c.ID}')">💀</button>`;
+      const archiveBtn = c.isArchived 
+        ? `<button class="primary" onclick="event.stopPropagation(); toggleColorArchive('${c.ID}', false)"><svg class="icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Вернуть</button>` 
+        : `<button class="warn" onclick="event.stopPropagation(); toggleColorArchive('${c.ID}', true)"><svg class="icon" viewBox="0 0 24 24"><path d="M20 6H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2zm0 12H4V8h16v10zM2 4h20v2H2z"/></svg> В архив</button>`;
+      const deleteBtn = `<button class="danger" onclick="event.stopPropagation(); deleteSingleColor('${c.ID}')" title="Удалить"><svg class="icon" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>`;
       actionsHtml = `<div class="card-actions">${archiveBtn} ${deleteBtn}</div>`;
-    } else { actionsHtml = `<div class="card-actions" style="justify-content:center; font-size:12px; color:var(--muted); margin-top:8px;">(Просмотр)</div>`; }
+    } else { 
+      actionsHtml = `<div class="card-actions" style="justify-content:center; font-size:12px; color:#6b4a2a; font-family:var(--font-title);">Только просмотр</div>`; 
+    }
+
     el.innerHTML=`
-      <div class="card-head"><div class="swatch" style="background:${c.hex}"></div>
-        <div class="names"><div class="title">${escapeHtml(nameData.main)} ${renameColorBtn} ${ncsBadge}</div><div class="sub">${escapeHtml(nameData.sub)}</div></div>
-      </div>${formulasHtml}${actionsHtml}`;
-    list.appendChild(el);
+      <div class="color-header">
+        <div class="color-swatch" style="background:${c.hex}"></div>
+        <div class="color-info">
+          <div class="color-name">${escapeHtml(nameData.main)} ${ncsBadge} ${renameColorBtn}</div>
+          <div class="color-code">${escapeHtml(nameData.sub)}</div>
+        </div>
+      </div>
+      ${formulasHtml}
+      ${actionsHtml}`;
+    gridContainer.appendChild(el);
   }
   updateLoadMoreBtn(itemsToShow.length, currentItems.length);
 }
 
+// Калькулятор пересчета (мл / oz)
 function syncCalc(colorId, fIndex, value, sourceUnit) {
   const val = parseFloat(value); if (isNaN(val) || val <= 0) return;
   const inputL = document.getElementById(`vol_l_${colorId}_${fIndex}`); const inputOz = document.getElementById(`vol_oz_${colorId}_${fIndex}`);
   let liters = 0;
   if (sourceUnit === 'L') { liters = val; if (inputOz) inputOz.value = (liters * 33.814).toFixed(2); }
   else { liters = val * 0.0295735; if (inputL) inputL.value = liters.toFixed(2); }
+  
   let targetColor = null;
   for (const p of allPalettes) { const c = p.colors.find(x => String(x.ID) === String(colorId)); if (c) { targetColor = c; break; } }
   if (!targetColor) return;
   const f = targetColor.formulas[fIndex]; if (!f) return;
+  
   const textEl = document.getElementById(`text_${colorId}_${fIndex}`);
   if (textEl) {
-    const newComps = f.components.map(x => `<b>${x.pigment}</b>:${(x.amount * liters).toFixed(2)}`).join(' ');
-    textEl.innerHTML = newComps + ' <span style="font-size:11px;color:var(--muted)">oz</span>';
+    const newComps = f.components.map(x => {
+      const totalMl = x.amount * liters;
+      const totalOz = totalMl / 29.5735;
+      return `<b>${x.pigment}</b>: ${totalMl.toFixed(1)} <span class="unit">мл</span> <span style="color:#7a6a5a;font-size:11px;">(${totalOz.toFixed(2)} oz)</span>`;
+    }).join(' | ');
+    textEl.innerHTML = newComps;
   }
 }
 
@@ -597,29 +785,46 @@ function openColorModal(colorId) {
   let color = null; let sourcePalette = null;
   for (const p of allPalettes) { const found = p.colors.find(c => String(c.ID) === String(colorId)); if (found) { color = found; sourcePalette = p; break; } }
   if (!color) return;
+  
   const nameData = parseColorName(color);
   let ncsBadge = ''; const searchStr = ((color.EXTERNAL_NAME||'') + ' ' + (color.NAME||'')).toUpperCase(); if (searchStr.includes('NCS')) ncsBadge = `<span class="tag ncs">NCS</span>`;
+  
   let formulasHtml = '';
   color.formulas.forEach(f => {
-    const comps = f.components.map(x => `<b>${x.pigment}</b>:${x.amount.toFixed(2)}`).join(' ');
-    const oldTag = f.isOld ? `<span class="tag old">Старое заклинание</span>` : '';
+    const comps = f.components.map(x => `<b>${x.pigment}</b>: ${x.amount.toFixed(1)}`).join(' | ');
+    const oldTag = f.isOld ? `<span class="tag old">Старое</span>` : '';
     const matTag = f.materialName ? `<span class="tag material">${escapeHtml(f.materialName)}</span>` : '';
-    formulasHtml += `<div class="${f.isOld ? 'formula-box old-formula' : 'formula-box'}" style="margin-bottom: 10px;"><div class="formula-title">База ${f.base || '?'} ${oldTag} ${matTag}</div><div>${comps} <span style="color:var(--muted);font-size:11px;">oz (на 1 литр)</span></div></div>`;
+    formulasHtml += `
+      <div class="formula-block" style="margin-bottom: 12px; ${f.isOld ? 'opacity:0.7;' : ''}">
+        <div class="formula-header"><span class="formula-base">База ${f.base || '?'} ${oldTag} ${matTag}</span></div>
+        <div class="formula-content">${comps} <span class="unit">мл на 1 литр</span></div>
+      </div>`;
   });
+  
   $('modalBody').innerHTML = `
-    <div class="card-head" style="margin-bottom: 16px;"><div class="swatch" style="background:${color.hex}; width: 56px; height: 56px;"></div>
-      <div class="names"><div class="title" style="font-size: 20px;">${escapeHtml(nameData.main)} ${ncsBadge}</div><div class="sub" style="font-size: 14px;">${escapeHtml(nameData.sub)}</div><div style="font-size: 12px; color: var(--muted); margin-top: 4px;">Раздел: ${escapeHtml(sourcePalette.name)}</div></div>
-    </div><div style="border-top: 1px solid var(--border); padding-top: 16px;"><div style="font-family: var(--font-serif); color: var(--accent); font-weight: 700; margin-bottom: 12px; font-size: 16px;">✨ Все базы и рецепты (oz на 1 л)</div>${formulasHtml || '<div style="color: var(--muted); font-style: italic;">Нет формул</div>'}</div>`;
+    <div class="color-header" style="margin-bottom: 24px; border-bottom: 1px solid rgba(139, 100, 50, 0.3); padding-bottom: 16px;">
+      <div class="color-swatch" style="background:${color.hex}; width: 72px; height: 72px;"></div>
+      <div class="color-info">
+        <div class="color-name" style="font-size: 24px;">${escapeHtml(nameData.main)} ${ncsBadge}</div>
+        <div class="color-code" style="font-size: 18px;">${escapeHtml(nameData.sub)}</div>
+        <div style="font-size: 14px; color: #6b4a2a; margin-top: 8px; font-family:var(--font-title);">Раздел: <span style="color:#8c2a6e">${escapeHtml(sourcePalette.name)}</span></div>
+      </div>
+    </div>
+    <div>
+      <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 18px; font-family:var(--font-title); color:#2b1a22;">Все рецепты</h3>
+      ${formulasHtml || '<div style="color: #6b4a2a; font-style: italic;">Нет формул</div>'}
+    </div>`;
   $('colorModal').classList.add('active');
 }
 
 function closeModal(e) { if (e && e.target.id !== 'colorModal') return; $('colorModal').classList.remove('active'); }
-function updateLoadMoreBtn(shown, total) { const btn = $('loadMoreBtn'); if (shown < total) { btn.style.display = 'block'; btn.textContent = `📜 Показать еще ${Math.min(PAGE_SIZE, total - shown)} (осталось ${total - shown})`; } else { btn.style.display = 'none'; } }
+function updateLoadMoreBtn(shown, total) { const btn = $('loadMoreBtn'); if (shown < total) { btn.style.display = 'block'; btn.textContent = `Показать еще ${Math.min(PAGE_SIZE, total - shown)}...`; } else { btn.style.display = 'none'; } }
 
+// ============ ДЕЙСТВИЯ ============
 async function renamePalette(pId) {
   const p = allPalettes.find(x => String(x.id) === String(pId)); if (!p) return;
-  const newName = prompt('Новое название раздела:', p.name);
-  if (newName && newName.trim() && newName !== p.name) { p.name = newName.trim(); await savePaletteToCloud(p); toast('Название обновлено'); render(); }
+  const newName = prompt('Новое название палитры:', p.name);
+  if (newName && newName.trim() && newName !== p.name) { p.name = newName.trim(); await savePaletteToCloud(p); toast('Сохранено'); render(); }
 }
 
 async function renameColor(colorId) {
@@ -629,7 +834,7 @@ async function renameColor(colorId) {
     if (c) {
       const currentName = c.EXTERNAL_NAME || c.NAME;
       const newName = prompt('Новое название цвета:', currentName);
-      if (newName && newName.trim() && newName !== currentName) { c.EXTERNAL_NAME = newName.trim(); await savePaletteToCloud(p); toast('Название обновлено'); render(); }
+      if (newName && newName.trim() && newName !== currentName) { c.EXTERNAL_NAME = newName.trim(); await savePaletteToCloud(p); toast('Сохранено'); render(); }
       return;
     }
   }
@@ -642,27 +847,27 @@ async function editFormula(colorId, formulaIndex) {
     if (c && c.formulas[formulaIndex]) {
       const f = c.formulas[formulaIndex];
       const currentStr = f.components.map(x => `${x.pigment}: ${x.amount}`).join(', ');
-      const newStr = prompt('Редактирование (формат: ПИГМЕНТ: КОЛИЧЕСТВО, ПИГМЕНТ: КОЛИЧЕСТВО):', currentStr);
+      const newStr = prompt('Редактирование (формат: ПИГМЕНТ: МЛ, ПИГМЕНТ: МЛ):', currentStr);
       if (newStr && newStr.trim() && newStr !== currentStr) {
         const newComponents = [];
         for (let part of newStr.split(',')) { const [pig, amt] = part.split(':'); if (pig && amt) { const parsedAmt = parseFloat(amt.replace(',', '.').trim()); if (!isNaN(parsedAmt)) newComponents.push({ pigment: pig.trim(), amount: parsedAmt }); } }
-        if (newComponents.length > 0) { f.components = newComponents; await savePaletteToCloud(p); toast('Формула обновлена'); render(); }
-        else toast('Ошибка формата.', true);
+        if (newComponents.length > 0) { f.components = newComponents; await savePaletteToCloud(p); toast('Сохранено'); render(); }
+        else toast('Ошибка формата', true);
       } return;
     }
   }
 }
 
 async function toggleColorArchive(colorId, archiveState) {
-  if (archiveState && !confirm('Предать цвет забвению?')) return;
+  if (archiveState && !confirm('Отправить цвет в Забвение?')) return;
   for (const p of allPalettes) { const color = p.colors.find(c => String(c.ID) === String(colorId)); if (color) { color.isArchived = archiveState; await savePaletteToCloud(p); } }
-  toast(archiveState ? 'В забвении' : 'Возвращен'); render();
+  toast(archiveState ? 'В Забвении' : 'Возвращен'); render();
 }
 
 async function deleteSingleColor(colorId) {
-  if (!confirm('⚠️ Стереть этот цвет НАВСЕГДА?')) return;
+  if (!confirm('Стереть этот цвет НАВСЕГДА?')) return;
   for (const p of allPalettes) { const idx = p.colors.findIndex(c => String(c.ID) === String(colorId)); if (idx !== -1) { p.colors.splice(idx, 1); await savePaletteToCloud(p); } }
-  toast('Цвет стерт'); render();
+  toast('Стерто'); render();
 }
 
 function backToPalettes(){ currentPaletteId=null; $('search').value=''; visibleCount = PAGE_SIZE; render(); }
